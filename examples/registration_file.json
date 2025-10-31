@@ -6,7 +6,7 @@
   "endpoints": [
     {
       "name": "MCP",
-      "endpoint": "wss://api.example.com/mcp",
+      "endpoint": "https://api.example.com/mcp",
       "version": "2025-06-18",
       "mcpTools": [
         "data_analysis",
@@ -26,7 +26,7 @@
     },
     {
       "name": "A2A",
-      "endpoint": "wss://api.example.com/a2a",
+      "endpoint": "https://api.example.com/a2a",
       "version": "0.30",
       "a2aSkills": [
         "skill_1",

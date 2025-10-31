@@ -1,31 +1,20 @@
 import { Bytes, dataSource, json, log, BigInt, JSONValueKind } from '@graphprotocol/graph-ts'
 import { AgentRegistrationFile, Agent } from '../generated/schema'
 
-function safeSaveRegistrationFile(metadata: AgentRegistrationFile, cid: string): void {
-  let existing = AgentRegistrationFile.load(cid)
-  if (existing == null) {
-    metadata.save()
-  } else {
-    log.info("Metadata file already exists, skipping save for CID: {}", [cid])
-  }
-}
-
 export function parseRegistrationFile(content: Bytes): void {
   let context = dataSource.context()
   let agentId = context.getString('agentId')
   let cid = dataSource.stringParam()
+  let txHash = context.getString('txHash')
   
-  log.info("Parsing registration file for agent: {}, CID: {}", [agentId, cid])
+  // Create composite ID: transactionHash:cid
+  let fileId = `${txHash}:${cid}`
   
-  // Check if already exists (immutable entity)
-  let metadata = AgentRegistrationFile.load(cid)
-  if (metadata != null) {
-    log.info("Registration file already indexed for CID: {}, agent: {}", [cid, agentId])
-    return // Already processed
-  }
+  log.info("Parsing registration file for agent: {}, CID: {}, fileId: {}", [agentId, cid, fileId])
   
-  // Create new registration file
-  metadata = new AgentRegistrationFile(cid)
+  // Create registration file with composite ID
+  let metadata = new AgentRegistrationFile(fileId)
+  metadata.cid = cid
   metadata.agentId = agentId
   metadata.createdAt = context.getBigInt('timestamp')
   metadata.supportedTrusts = []
@@ -37,7 +26,7 @@ export function parseRegistrationFile(content: Bytes): void {
   let result = json.try_fromBytes(content)
   if (result.isError) {
     log.error("Failed to parse JSON for registration file CID: {}", [cid])
-    safeSaveRegistrationFile(metadata, cid)
+    metadata.save()
     return
   }
   
@@ -45,29 +34,29 @@ export function parseRegistrationFile(content: Bytes): void {
   
   if (value.kind != JSONValueKind.OBJECT) {
     log.error("JSON value is not an object for registration file CID: {}, kind: {}", [cid, value.kind.toString()])
-    safeSaveRegistrationFile(metadata, cid)
+    metadata.save()
     return
   }
   
   let obj = value.toObject()
   if (obj == null) {
     log.error("Failed to convert JSON to object for registration file CID: {}", [cid])
-    safeSaveRegistrationFile(metadata, cid)
+    metadata.save()
     return
   }
   
   let name = obj.get('name')
-  if (name && !name.isNull()) {
+  if (name && !name.isNull() && name.kind == JSONValueKind.STRING) {
     metadata.name = name.toString()
   }
   
   let description = obj.get('description')
-  if (description && !description.isNull()) {
+  if (description && !description.isNull() && description.kind == JSONValueKind.STRING) {
     metadata.description = description.toString()
   }
   
   let image = obj.get('image')
-  if (image && !image.isNull()) {
+  if (image && !image.isNull() && image.kind == JSONValueKind.STRING) {
     metadata.image = image.toString()
   }
   
@@ -85,97 +74,114 @@ export function parseRegistrationFile(content: Bytes): void {
   if (!supportedTrusts || supportedTrusts.isNull()) {
     supportedTrusts = obj.get('supportedTrust')
   }
-  if (supportedTrusts && !supportedTrusts.isNull()) {
+  if (supportedTrusts && !supportedTrusts.isNull() && supportedTrusts.kind == JSONValueKind.ARRAY) {
     let trustsArray = supportedTrusts.toArray()
     let trusts: string[] = []
     for (let i = 0; i < trustsArray.length; i++) {
-      trusts.push(trustsArray[i].toString())
+      let trust = trustsArray[i]
+      if (trust.kind == JSONValueKind.STRING) {
+        trusts.push(trust.toString())
+      }
     }
     metadata.supportedTrusts = trusts
   }
   
   // Parse endpoints array
   let endpoints = obj.get('endpoints')
-  if (endpoints && !endpoints.isNull()) {
+  if (endpoints && !endpoints.isNull() && endpoints.kind == JSONValueKind.ARRAY) {
     let endpointsArray = endpoints.toArray()
     
     for (let i = 0; i < endpointsArray.length; i++) {
-      let endpoint = endpointsArray[i].toObject()
+      let endpointValue = endpointsArray[i]
+      if (endpointValue.kind != JSONValueKind.OBJECT) {
+        continue
+      }
+      let endpoint = endpointValue.toObject()
+      if (endpoint == null) {
+        continue
+      }
       
       let endpointName = endpoint.get('name')
-      if (endpointName && !endpointName.isNull()) {
+      if (endpointName && !endpointName.isNull() && endpointName.kind == JSONValueKind.STRING) {
         let nameStr = endpointName.toString()
         
         if (nameStr == 'MCP') {
           let mcpEndpoint = endpoint.get('endpoint')
-          if (mcpEndpoint && !mcpEndpoint.isNull()) {
+          if (mcpEndpoint && !mcpEndpoint.isNull() && mcpEndpoint.kind == JSONValueKind.STRING) {
             metadata.mcpEndpoint = mcpEndpoint.toString()
           }
           
           let mcpVersion = endpoint.get('version')
-          if (mcpVersion && !mcpVersion.isNull()) {
+          if (mcpVersion && !mcpVersion.isNull() && mcpVersion.kind == JSONValueKind.STRING) {
             metadata.mcpVersion = mcpVersion.toString()
           }
           
-          // Extract mcpTools from MCP endpoint
           let mcpTools = endpoint.get('mcpTools')
-          if (mcpTools && !mcpTools.isNull()) {
+          if (mcpTools && !mcpTools.isNull() && mcpTools.kind == JSONValueKind.ARRAY) {
             let toolsArray = mcpTools.toArray()
             let tools: string[] = []
             for (let j = 0; j < toolsArray.length; j++) {
-              tools.push(toolsArray[j].toString())
+              let tool = toolsArray[j]
+              if (tool.kind == JSONValueKind.STRING) {
+                tools.push(tool.toString())
+              }
             }
             metadata.mcpTools = tools
           }
           
-          // Extract mcpPrompts from MCP endpoint
           let mcpPrompts = endpoint.get('mcpPrompts')
-          if (mcpPrompts && !mcpPrompts.isNull()) {
+          if (mcpPrompts && !mcpPrompts.isNull() && mcpPrompts.kind == JSONValueKind.ARRAY) {
             let promptsArray = mcpPrompts.toArray()
             let prompts: string[] = []
             for (let j = 0; j < promptsArray.length; j++) {
-              prompts.push(promptsArray[j].toString())
+              let prompt = promptsArray[j]
+              if (prompt.kind == JSONValueKind.STRING) {
+                prompts.push(prompt.toString())
+              }
             }
             metadata.mcpPrompts = prompts
           }
           
-          // Extract mcpResources from MCP endpoint
           let mcpResources = endpoint.get('mcpResources')
-          if (mcpResources && !mcpResources.isNull()) {
+          if (mcpResources && !mcpResources.isNull() && mcpResources.kind == JSONValueKind.ARRAY) {
             let resourcesArray = mcpResources.toArray()
             let resources: string[] = []
             for (let j = 0; j < resourcesArray.length; j++) {
-              resources.push(resourcesArray[j].toString())
+              let resource = resourcesArray[j]
+              if (resource.kind == JSONValueKind.STRING) {
+                resources.push(resource.toString())
+              }
             }
             metadata.mcpResources = resources
           }
         } else if (nameStr == 'A2A') {
           let a2aEndpoint = endpoint.get('endpoint')
-          if (a2aEndpoint && !a2aEndpoint.isNull()) {
+          if (a2aEndpoint && !a2aEndpoint.isNull() && a2aEndpoint.kind == JSONValueKind.STRING) {
             metadata.a2aEndpoint = a2aEndpoint.toString()
           }
           
           let a2aVersion = endpoint.get('version')
-          if (a2aVersion && !a2aVersion.isNull()) {
+          if (a2aVersion && !a2aVersion.isNull() && a2aVersion.kind == JSONValueKind.STRING) {
             metadata.a2aVersion = a2aVersion.toString()
           }
           
-          // Extract a2aSkills from A2A endpoint
           let a2aSkills = endpoint.get('a2aSkills')
-          if (a2aSkills && !a2aSkills.isNull()) {
+          if (a2aSkills && !a2aSkills.isNull() && a2aSkills.kind == JSONValueKind.ARRAY) {
             let skillsArray = a2aSkills.toArray()
             let skills: string[] = []
             for (let j = 0; j < skillsArray.length; j++) {
-              skills.push(skillsArray[j].toString())
+              let skill = skillsArray[j]
+              if (skill.kind == JSONValueKind.STRING) {
+                skills.push(skill.toString())
+              }
             }
             metadata.a2aSkills = skills
           }
         } else if (nameStr == 'agentWallet') {
           let agentWallet = endpoint.get('endpoint')
-          if (agentWallet && !agentWallet.isNull()) {
+          if (agentWallet && !agentWallet.isNull() && agentWallet.kind == JSONValueKind.STRING) {
             let walletStr = agentWallet.toString()
             
-            // Parse EIP-155 format: eip155:1:0x742d35...
             if (walletStr.startsWith("eip155:")) {
               let parts = walletStr.split(":")
               let hasAddress = parts.length > 2
@@ -195,12 +201,12 @@ export function parseRegistrationFile(content: Bytes): void {
           }
         } else if (nameStr == 'ENS') {
           let ensEndpoint = endpoint.get('endpoint')
-          if (ensEndpoint && !ensEndpoint.isNull()) {
+          if (ensEndpoint && !ensEndpoint.isNull() && ensEndpoint.kind == JSONValueKind.STRING) {
             metadata.ens = ensEndpoint.toString()
           }
         } else if (nameStr == 'DID') {
           let didEndpoint = endpoint.get('endpoint')
-          if (didEndpoint && !didEndpoint.isNull()) {
+          if (didEndpoint && !didEndpoint.isNull() && didEndpoint.kind == JSONValueKind.STRING) {
             metadata.did = didEndpoint.toString()
           }
         }
@@ -208,10 +214,15 @@ export function parseRegistrationFile(content: Bytes): void {
     }
   }
   
-  safeSaveRegistrationFile(metadata, cid)
+  metadata.save()
   
-  log.info("Successfully parsed registration file for CID: {}, name: {}, description: {}", [cid, metadata.name ? metadata.name! : "null", metadata.description ? metadata.description! : "null"])
+  log.info("Successfully parsed registration file for fileId: {}, CID: {}, name: {}, description: {}", [
+    fileId,
+    cid,
+    metadata.name ? metadata.name! : "null",
+    metadata.description ? metadata.description! : "null"
+  ])
   
   // Note: We cannot update chain entities (Agent) from file data source handlers due to isolation rules.
-  // The metadataFile connection is set from the chain handler in identity-registry.ts
+  // The registrationFile connection is set from the chain handler in identity-registry.ts
 }

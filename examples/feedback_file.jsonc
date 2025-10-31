@@ -12,7 +12,7 @@
     "task": "as-defined-by-A2A",
     "capability": "tools", // As per MCP: "prompts", "resources", "tools" or "completions"
     "name": "Put the name of the MCP tool you liked!",
-    "proof_of_payment": {
+    "proofOfPayment": {
       "fromAddress": "0x00...",
       "toAddress": "0x00...",
       "chainId": "1",

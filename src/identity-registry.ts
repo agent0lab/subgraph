@@ -78,25 +78,20 @@ export function handleAgentRegistered(event: Registered): void {
     let ipfsHash = extractIpfsHash(event.params.tokenURI)
     logIpfsExtraction("agent registration", event.params.tokenURI, ipfsHash)
     if (ipfsHash.length > 0) {
-      // Check if already processed to avoid duplicate file handlers
-      let existingFile = AgentRegistrationFile.load(ipfsHash)
-      if (existingFile == null) {
-        let context = new DataSourceContext()
-        context.setString('agentId', agentEntityId)
-        context.setString('cid', ipfsHash)
-        context.setBigInt('timestamp', event.block.timestamp)
-        RegistrationFile.createWithContext(ipfsHash, context)
-        
-        // Set the connection immediately from chain handler
-        agent.registrationFile = ipfsHash
-        agent.save()
-        log.info("Set metadataFile connection for agent {} to CID: {}", [agentEntityId, ipfsHash])
-      } else {
-        // File already exists, set the connection
-        agent.registrationFile = ipfsHash
-        agent.save()
-        log.info("IPFS file already indexed, setting connection for CID: {}", [ipfsHash])
-      }
+      let txHash = event.transaction.hash.toHexString()
+      let fileId = `${txHash}:${ipfsHash}`
+      
+      let context = new DataSourceContext()
+      context.setString('agentId', agentEntityId)
+      context.setString('cid', ipfsHash)
+      context.setString('txHash', txHash)
+      context.setBigInt('timestamp', event.block.timestamp)
+      RegistrationFile.createWithContext(ipfsHash, context)
+      
+      // Set the connection to the composite ID
+      agent.registrationFile = fileId
+      agent.save()
+      log.info("Set registrationFile connection for agent {} to ID: {}", [agentEntityId, fileId])
     }
   }
   
@@ -153,25 +148,20 @@ export function handleUriUpdated(event: UriUpdated): void {
     let ipfsHash = extractIpfsHash(event.params.newUri)
     logIpfsExtraction("agent URI update", event.params.newUri, ipfsHash)
     if (ipfsHash.length > 0) {
-      // Check if already processed to avoid duplicate file handlers
-      let existingFile = AgentRegistrationFile.load(ipfsHash)
-      if (existingFile == null) {
-        let context = new DataSourceContext()
-        context.setString('agentId', agentEntityId)
-        context.setString('cid', ipfsHash)
-        context.setBigInt('timestamp', event.block.timestamp)
-        RegistrationFile.createWithContext(ipfsHash, context)
-        
-        // Set the connection immediately from chain handler
-        agent.registrationFile = ipfsHash
-        agent.save()
-        log.info("Set metadataFile connection for agent {} to CID: {}", [agentEntityId, ipfsHash])
-      } else {
-        // File already exists, set the connection
-        agent.registrationFile = ipfsHash
-        agent.save()
-        log.info("IPFS file already indexed, setting connection for CID: {}", [ipfsHash])
-      }
+      let txHash = event.transaction.hash.toHexString()
+      let fileId = `${txHash}:${ipfsHash}`
+      
+      let context = new DataSourceContext()
+      context.setString('agentId', agentEntityId)
+      context.setString('cid', ipfsHash)
+      context.setString('txHash', txHash)
+      context.setBigInt('timestamp', event.block.timestamp)
+      RegistrationFile.createWithContext(ipfsHash, context)
+      
+      // Set the connection to the composite ID
+      agent.registrationFile = fileId
+      agent.save()
+      log.info("Set registrationFile connection for agent {} to ID: {}", [agentEntityId, fileId])
     }
     // updateProtocolActiveCounts removed - active/inactive stats removed
   }

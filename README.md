@@ -136,7 +136,8 @@ enum ValidationStatus {
 #### AgentRegistrationFile
 ```graphql
 type AgentRegistrationFile @entity(immutable: true) {
-  id: ID!                    # IPFS CID
+  id: ID!                    # Format: "transactionHash:cid"
+  cid: String!               # IPFS CID (for querying by content)
   agentId: String!          # "chainId:agentId"
   name: String              # Agent display name
   description: String        # Agent description
@@ -163,7 +164,8 @@ type AgentRegistrationFile @entity(immutable: true) {
 #### FeedbackFile
 ```graphql
 type FeedbackFile @entity(immutable: true) {
-  id: ID!                    # IPFS CID
+  id: ID!                    # Format: "transactionHash:cid"
+  cid: String!               # IPFS CID (for querying by content)
   feedbackId: String!       # "chainId:agentId:clientAddress:index"
   text: String              # Detailed feedback text
   capability: String        # Capability being rated
@@ -474,4 +476,6 @@ See `examples/queries.graphql` for comprehensive query examples:
 
 ## 📄 License
 
-MIT License - see LICENSE file for details.
+Agent0 SDK is MIT-licensed public good brought to you by Marco De Rossi in collaboration with Consensys, 🦊 MetaMask and Agent0, Inc. We are looking for co-maintainers. Please reach out if you want to help.
+
+Thanks also to Edge & Node (The Graph), Protocol Labs and Pinata for their support.

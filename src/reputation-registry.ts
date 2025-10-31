@@ -6,11 +6,12 @@ import {
   FeedbackRevoked,
   ResponseAppended
 } from "../generated/ReputationRegistry/ReputationRegistry"
-import { FeedbackFile } from "../generated/templates"
+import { FeedbackFile as FeedbackFileTemplate } from "../generated/templates"
 import {
   Agent,
   Feedback,
   FeedbackResponse,
+  FeedbackFile,
   AgentStats,
   GlobalStats,
   Protocol
@@ -64,17 +65,22 @@ export function handleNewFeedback(event: NewFeedback): void {
     let ipfsHash = extractIpfsHash(event.params.feedbackUri)
     logIpfsExtraction("feedback", event.params.feedbackUri, ipfsHash)
     if (ipfsHash.length > 0) {
+      let txHash = event.transaction.hash.toHexString()
+      let fileId = `${txHash}:${ipfsHash}`
+      
       let context = new DataSourceContext()
       context.setString('feedbackId', feedbackId)
       context.setString('cid', ipfsHash)
+      context.setString('txHash', txHash)
       context.setBigInt('timestamp', event.block.timestamp)
       context.setString('tag1OnChain', feedback.tag1 ? feedback.tag1! : "")
       context.setString('tag2OnChain', feedback.tag2 ? feedback.tag2! : "")
-      FeedbackFile.createWithContext(ipfsHash, context)
+      FeedbackFileTemplate.createWithContext(ipfsHash, context)
       
-      // Set the connection immediately from chain handler
-      feedback.feedbackFile = ipfsHash
+      // Set the connection to the composite ID
+      feedback.feedbackFile = fileId
       feedback.save()
+      log.info("Set feedbackFile connection for feedback {} to ID: {}", [feedbackId, fileId])
     }
   }
   

@@ -191,7 +191,8 @@ type GlobalStats @entity(immutable: false) {
 # =============================================================================
 
 type AgentRegistrationFile @entity(immutable: true) {
-  id: ID! # IPFS CID
+  id: ID! # Format: "transactionHash:cid"
+  cid: String! # IPFS CID (for querying by content)
   
   # Agent link (passed via context)
   agentId: String! # Format: "chainId:agentId"
@@ -226,7 +227,8 @@ type AgentRegistrationFile @entity(immutable: true) {
 }
 
 type FeedbackFile @entity(immutable: true) {
-  id: ID! # IPFS CID
+  id: ID! # Format: "transactionHash:cid"
+  cid: String! # IPFS CID (for querying by content)
   
   # Feedback link (passed via context)
   feedbackId: String! # Format: "chainId:agentId:clientAddress:feedbackIndex"
