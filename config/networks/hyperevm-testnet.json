@@ -1,0 +1,20 @@
+{
+  "network": "hyperevm-testnet",
+  "chainId": "998",
+  "displayName": "HyperEVM Testnet",
+  "identityRegistry": {
+    "address": "0x8004A9560C0edce880cbD24Ba19646470851C986",
+    "startBlock": 1
+  },
+  "reputationRegistry": {
+    "address": "0x8004b490779A65D3290a31fD96471122050dF671",
+    "startBlock": 1
+  },
+  "validationRegistry": {
+    "address": "0x8004C86198fdB8d8169c0405D510EC86cc7B0551",
+    "startBlock": 1
+  },
+  "graphNode": {
+    "network": "hyperevm-testnet"
+  }
+}

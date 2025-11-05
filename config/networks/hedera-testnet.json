@@ -1,0 +1,20 @@
+{
+  "network": "hedera-testnet",
+  "chainId": "296",
+  "displayName": "Hedera Testnet",
+  "identityRegistry": {
+    "address": "0x4c74ebd72921d537159ed2053f46c12a7d8e5923",
+    "startBlock": 26487774
+  },
+  "reputationRegistry": {
+    "address": "0xc565edcba77e3abeade40bfd6cf6bf583b3293e0",
+    "startBlock": 26487774
+  },
+  "validationRegistry": {
+    "address": "0x18df085d85c586e9241e0cd121ca422f571c2da6",
+    "startBlock": 26487774
+  },
+  "graphNode": {
+    "network": "hedera-testnet"
+  }
+}

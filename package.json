@@ -5,8 +5,14 @@
   "repository": "https://github.com/agent0-sdk/subgraph",
   "license": "MIT",
   "scripts": {
-    "codegen": "graph codegen",
+    "validate": "node scripts/validate.js",
+    "generate": "node scripts/generate.js",
+    "generate:single": "node scripts/generate.js",
+    "codegen": "npm run generate && graph codegen",
+    "codegen:single": "graph codegen deployments/generated/$DEPLOYMENT/subgraph.yaml",
     "build": "graph build",
+    "build:all": "npm run generate && node scripts/build-all.js",
+    "build:single": "graph build deployments/generated/$DEPLOYMENT/subgraph.yaml",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ agent0-sdk/agent0-sdk",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 agent0-sdk/agent0-sdk",
     "create-local": "graph create --node http://localhost:8020/ agent0-sdk/agent0-sdk",
@@ -15,7 +21,8 @@
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.58.0",
-    "@graphprotocol/graph-ts": "0.31.0"
+    "@graphprotocol/graph-ts": "0.31.0",
+    "mustache": "^4.2.0"
   },
   "devDependencies": {
     "matchstick-as": "0.5.2"

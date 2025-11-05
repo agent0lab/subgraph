@@ -1,0 +1,130 @@
+specVersion: 0.0.5
+schema:
+  file: ../../../schema.graphql
+dataSources:
+  # Identity Registry
+  - kind: ethereum
+    name: IdentityRegistry
+    network: {{ graphNode.network }}
+    source:
+      address: "{{ identityRegistry.address }}"
+      abi: IdentityRegistry
+      startBlock: {{ identityRegistry.startBlock }}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Agent
+        - AgentMetadata
+        - Protocol
+        - GlobalStats
+      abis:
+        - name: IdentityRegistry
+          file: ../../../abis/IdentityRegistry.json
+      eventHandlers:
+        - event: Registered(indexed uint256,string,indexed address)
+          handler: handleAgentRegistered
+        - event: MetadataSet(indexed uint256,indexed string,string,bytes)
+          handler: handleMetadataSet
+        - event: UriUpdated(indexed uint256,string,indexed address)
+          handler: handleUriUpdated
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+      file: ../../../src/identity-registry.ts
+
+  # Reputation Registry
+  - kind: ethereum
+    name: ReputationRegistry
+    network: {{ graphNode.network }}
+    source:
+      address: "{{ reputationRegistry.address }}"
+      abi: ReputationRegistry
+      startBlock: {{ reputationRegistry.startBlock }}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Agent
+        - Feedback
+        - FeedbackResponse
+        - AgentStats
+        - GlobalStats
+      abis:
+        - name: ReputationRegistry
+          file: ../../../abis/ReputationRegistry.json
+      eventHandlers:
+        - event: NewFeedback(indexed uint256,indexed address,uint8,indexed bytes32,bytes32,string,bytes32)
+          handler: handleNewFeedback
+        - event: FeedbackRevoked(indexed uint256,indexed address,indexed uint64)
+          handler: handleFeedbackRevoked
+        - event: ResponseAppended(indexed uint256,indexed address,uint64,indexed address,string,bytes32)
+          handler: handleResponseAppended
+      file: ../../../src/reputation-registry.ts
+
+  # Validation Registry
+  - kind: ethereum
+    name: ValidationRegistry
+    network: {{ graphNode.network }}
+    source:
+      address: "{{ validationRegistry.address }}"
+      abi: ValidationRegistry
+      startBlock: {{ validationRegistry.startBlock }}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Agent
+        - Validation
+        - AgentStats
+        - GlobalStats
+      abis:
+        - name: ValidationRegistry
+          file: ../../../abis/ValidationRegistry.json
+      eventHandlers:
+        - event: ValidationRequest(indexed address,indexed uint256,string,indexed bytes32)
+          handler: handleValidationRequest
+        - event: ValidationResponse(indexed address,indexed uint256,indexed bytes32,uint8,string,bytes32,bytes32)
+          handler: handleValidationResponse
+      file: ../../../src/validation-registry.ts
+
+# =============================================================================
+# FILE DATA SOURCES (IPFS)
+# =============================================================================
+
+templates:
+  - kind: file/ipfs
+    name: RegistrationFile
+    network: {{ graphNode.network }}
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ../../../src/registration-file.ts
+      handler: parseRegistrationFile
+      entities:
+        - AgentRegistrationFile
+        - Agent
+      abis:
+        - name: IdentityRegistry
+          file: ../../../abis/IdentityRegistry.json
+
+  - kind: file/ipfs
+    name: FeedbackFile
+    network: {{ graphNode.network }}
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ../../../src/feedback-file.ts
+      handler: parseFeedbackFile
+      entities:
+        - FeedbackFile
+        - Feedback
+      abis:
+        - name: ReputationRegistry
+          file: ../../../abis/ReputationRegistry.json
