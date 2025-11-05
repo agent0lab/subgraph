@@ -14,6 +14,7 @@
     "build:all": "npm run generate && node scripts/build-all.js",
     "build:single": "graph build deployments/generated/$DEPLOYMENT/subgraph.yaml",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ agent0-sdk/agent0-sdk",
+    "deploy:studio": "node scripts/deploy-studio.js",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 agent0-sdk/agent0-sdk",
     "create-local": "graph create --node http://localhost:8020/ agent0-sdk/agent0-sdk",
     "remove-local": "graph remove --node http://localhost:8020/ agent0-sdk/agent0-sdk",

@@ -10,8 +10,8 @@ export function getChainId(): i32 {
   // ERC-8004 Supported Testnets
   if (network == "sepolia") {
     return 11155111  // Ethereum Sepolia
-  } else if (network == "base-sepolia") {
-    return 84532  // Base Sepolia
+  } else if (network == "base-testnet" || network == "base-sepolia") {
+    return 84532  // Base Sepolia (base-testnet in Studio)
   } else if (network == "linea-sepolia") {
     return 59141  // Linea Sepolia
   } else if (network == "polygon-amoy") {
