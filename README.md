@@ -52,7 +52,7 @@ This subgraph indexes data from three core smart contracts implementing the ERC-
 - 🔍 **Comprehensive Agent Data** - On-chain registration with rich off-chain metadata
 - 📊 **Real-time Reputation** - Live feedback scoring and response tracking
 - ✅ **Validation Tracking** - Complete validation lifecycle with status management
-- 📁 **IPFS Integration** - Native JSON parsing via File Data Sources
+- 📁 **IPFS & Arweave Integration** - Native JSON parsing via File Data Sources
 - 🔄 **Rich Relationships** - Connected data through derived fields and references
 
 **Note:** Currently deployed for Ethereum Sepolia only. Additional networks coming soon.
@@ -72,7 +72,7 @@ type Agent @entity(immutable: false) {
   chainId: BigInt!           # Blockchain identifier
   agentId: BigInt!          # Agent ID on the chain
   agentURI: String          # Registration file URI
-  agentURIType: String      # "ipfs", "https", "http", "unknown"
+  agentURIType: String      # "ipfs", "arweave", "https", "http", "unknown"
   owner: Bytes!             # Agent owner address
   operators: [Bytes!]!      # Authorized operators
   createdAt: BigInt!
@@ -95,7 +95,7 @@ type Feedback @entity(immutable: false) {
   score: Int!                # 0-100 score
   tag1: String              # Primary category tag
   tag2: String              # Secondary category tag
-  feedbackUri: String        # IPFS/HTPPS URI for rich content
+  feedbackUri: String        # IPFS/Arweave/HTTPS URI for rich content
   feedbackURIType: String
   feedbackHash: Bytes!
   isRevoked: Boolean!
@@ -130,15 +130,15 @@ enum ValidationStatus {
 }
 ```
 
-### Off-Chain Entities (Immutable from IPFS)
+### Off-Chain Entities (Immutable from IPFS/Arweave)
 
-**Rich metadata fetched from IPFS/HTTPS URIs:**
+**Rich metadata fetched from IPFS/Arweave/HTTPS URIs:**
 
 #### AgentRegistrationFile
 ```graphql
 type AgentRegistrationFile @entity(immutable: true) {
   id: ID!                    # Format: "transactionHash:cid"
-  cid: String!               # IPFS CID (for querying by content)
+  cid: String!               # IPFS CID or Arweave transaction ID
   agentId: String!          # "chainId:agentId"
   name: String              # Agent display name
   description: String        # Agent description
@@ -166,7 +166,7 @@ type AgentRegistrationFile @entity(immutable: true) {
 ```graphql
 type FeedbackFile @entity(immutable: true) {
   id: ID!                    # Format: "transactionHash:cid"
-  cid: String!               # IPFS CID (for querying by content)
+  cid: String!               # IPFS CID or Arweave transaction ID
   feedbackId: String!       # "chainId:agentId:clientAddress:index"
   text: String              # Detailed feedback text
   capability: String        # Capability being rated
@@ -385,38 +385,91 @@ query GetProtocolStats {
 }
 ```
 
-## 📁 IPFS File Data Sources
+### Find Agents by Storage Protocol
 
-The subgraph uses **File Data Sources** to parse off-chain content:
+```graphql
+query GetArweaveAgents {
+  agents(
+    where: { agentURIType: "arweave" }
+    first: 100
+  ) {
+    id
+    agentURI
+    agentURIType
+    registrationFile {
+      cid  # Arweave transaction ID
+      name
+      description
+      mcpEndpoint
+      a2aEndpoint
+    }
+  }
+}
+```
+
+### Mixed Storage Query (IPFS + Arweave)
+
+```graphql
+query GetAllAgentsWithMetadata {
+  agents(
+    where: { agentURIType_in: ["ipfs", "arweave"] }
+    first: 100
+  ) {
+    id
+    agentURI
+    agentURIType
+    registrationFile {
+      cid
+      name
+      description
+      active
+    }
+  }
+}
+```
+
+## 📁 File Data Sources (IPFS & Arweave)
+
+The subgraph uses **File Data Sources** to parse off-chain content from multiple storage protocols:
 
 ### RegistrationFile Data Source
 
-- **Handler**: `src/registration-file.ts`
-- **Trigger**: When `agentURI` points to IPFS/HTTPS content
+- **Handler**: `src/registration-file.ts` (unified handler for all protocols)
+- **Trigger**: When `agentURI` points to IPFS/Arweave/HTTPS content
 - **Output**: `AgentRegistrationFile` entity
 - **Data Parsed**: Metadata, capabilities, endpoints, identity information
+- **Templates**:
+  - `IPFSRegistrationFile` (kind: `file/ipfs`)
+  - `ArweaveRegistrationFile` (kind: `file/arweave`)
 
 ### FeedbackFile Data Source
 
-- **Handler**: `src/feedback-file.ts`
-- **Trigger**: When `feedbackUri` points to IPFS/HTTPS content
+- **Handler**: `src/feedback-file.ts` (unified handler for all protocols)
+- **Trigger**: When `feedbackUri` points to IPFS/Arweave/HTTPS content
 - **Output**: `FeedbackFile` entity
 - **Data Parsed**: Detailed feedback text, proof of payment, context
+- **Templates**:
+  - `IPFSFeedbackFile` (kind: `file/ipfs`)
+  - `ArweaveFeedbackFile` (kind: `file/arweave`)
 
 ### Supported URI Formats
 
 - **IPFS**: `ipfs://QmHash...` or bare `QmHash...`
+- **Arweave**: `ar://transactionId...`
 - **HTTPS**: `https://example.com/file.json`
 - **HTTP**: `http://example.com/file.json`
+
+**Note:** The Graph Node automatically handles protocol-specific fetching. Both IPFS and Arweave templates call the same unified handler functions, which use shared JSON parsing utilities to ensure consistent data extraction regardless of storage protocol.
 
 ## 🔄 Data Flow
 
 1. **On-chain Events** → Contract events trigger indexing
-2. **URI Detection** → Subgraph detects IPFS/HTTPS URIs
-3. **File Fetching** → File Data Sources fetch and parse JSON
-4. **Entity Creation** → Immutable file entities created
-5. **Relationship Links** → On-chain entities link to file entities
-6. **Statistics Update** → Aggregate statistics computed
+2. **URI Detection** → Subgraph detects IPFS/Arweave/HTTPS URIs and creates appropriate file data sources
+3. **File Fetching** → The Graph Node fetches content via protocol-specific methods (IPFS gateways, Arweave gateways, or HTTPS)
+4. **Unified Parsing** → File Data Sources parse JSON using shared utility functions
+5. **Entity Creation** → Immutable file entities created with protocol-agnostic schema
+6. **Relationship Links** → On-chain entities link to file entities via derived fields
+7. **Statistics Update** → Aggregate statistics computed and updated
 
 ## ⚙️ Configuration
 
