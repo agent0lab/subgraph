@@ -456,9 +456,17 @@ npm run create-local
 npm run deploy-local
 
 # Query local endpoint
+
+# Simple query (just IDs)
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"query": "{ agents(first: 5) { id } }"}' \
+  http://localhost:8000/subgraphs/name/agent0-sdk/agent0-sdk
+
+# Complete query with agent name (note: name is in registrationFile, not directly on Agent)
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ agents(first: 5) { id registrationFile { name description } } }"}' \
   http://localhost:8000/subgraphs/name/agent0-sdk/agent0-sdk
 ```
 
