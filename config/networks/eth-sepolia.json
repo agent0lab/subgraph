@@ -1,0 +1,20 @@
+{
+  "network": "sepolia",
+  "chainId": "11155111",
+  "displayName": "Ethereum Sepolia",
+  "identityRegistry": {
+    "address": "0x8004a6090Cd10A7288092483047B097295Fb8847",
+    "startBlock": 9493000
+  },
+  "reputationRegistry": {
+    "address": "0x8004B8FD1A363aa02fDC07635C0c5F94f6Af5B7E",
+    "startBlock": 9493000
+  },
+  "validationRegistry": {
+    "address": "0x8004CB39f29c09145F24Ad9dDe2A108C1A2cdfC5",
+    "startBlock": 9493000
+  },
+  "graphNode": {
+    "network": "sepolia"
+  }
+}

@@ -1,10 +1,18 @@
 # Agent0 SDK Subgraph
 
-A subgraph for indexing [ERC-8004](https://eips.ethereum.org/EIP-8004) Trustless Agents protocol data, providing GraphQL APIs for agent discovery, reputation tracking, and validation.
+A multi-chain subgraph for indexing [ERC-8004](https://eips.ethereum.org/EIP-8004) Trustless Agents protocol data, providing GraphQL APIs for agent discovery, reputation tracking, and validation across 7 networks.
 
-**Current Deployment:**
-- **Network**: Ethereum Sepolia (Chain ID: 11155111)
-- **Endpoint**: `https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT`
+## 🌐 Supported Networks
+
+| Network | Chain ID | Status | Endpoint |
+|---------|----------|--------|----------|
+| **Ethereum Sepolia** | 11155111 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT) |
+| **Base Sepolia** | 84532 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/GjQEDgEKqoh5Yc8MUgxoQoRATEJdEiH7HbocfR1aFiHa) |
+| **Polygon Amoy** | 80002 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/2A1JB18r1mF2VNP4QBH4mmxd74kbHoM6xLXC8ABAKf7j) |
+| **Linea Sepolia** | 59141 | ✅ Ready | - |
+| **Hedera Testnet** | 296 | ✅ Ready | - |
+| **HyperEVM Testnet** | 998 | ✅ Ready | - |
+| **SKALE Base Sepolia** | 1351057110 | ✅ Ready | - |
 
 ## 🚀 Quick Start
 
@@ -19,21 +27,136 @@ A subgraph for indexing [ERC-8004](https://eips.ethereum.org/EIP-8004) Trustless
 # Install dependencies
 npm install
 
-# Generate types from schema
-npm run codegen
+# Validate network configurations
+npm run validate
 
-# Build the subgraph
-npm run build
+# Generate manifests for all networks
+npm run generate
+
+# Build all network deployments
+npm run build:all
 ```
 
-### Deploy
+## 🛠️ Multi-Chain Development
+
+This subgraph uses a **template-based multi-chain architecture** inspired by Messari's subgraph infrastructure, enabling a single codebase to deploy across 7 networks with minimal duplication.
+
+### Architecture Overview
+
+```
+📁 Project Structure
+├── config/
+│   ├── networks/                 # Network-specific configurations
+│   │   ├── eth-sepolia.json      # Contract addresses, start blocks
+│   │   ├── base-sepolia.json
+│   │   └── ... (7 networks)
+│   └── subgraph.template.yaml    # Mustache template for manifests
+├── deployments/
+│   ├── deployment.json           # Master deployment tracking
+│   └── generated/                # Generated subgraph.yaml files
+│       ├── erc-8004-eth-sepolia/
+│       ├── erc-8004-base-sepolia/
+│       └── ... (7 deployments)
+├── src/                          # Shared handler code (95%+ reuse)
+└── scripts/                      # Build automation
+```
+
+### Key Commands
+
+#### Development Workflow
 
 ```bash
-# Deploy to The Graph Network
-npm run deploy
+# Validate all network configurations
+npm run validate
+
+# Generate manifests from template
+npm run generate
+
+# Build all deployments (runs codegen + build for each network)
+npm run build:all
+
+# Build single deployment
+DEPLOYMENT=erc-8004-base-sepolia npm run build:single
+```
+
+#### Adding a New Network
+
+1. Create network config: `config/networks/new-network.json`
+```json
+{
+  "network": "new-network",
+  "chainId": "123456",
+  "displayName": "New Network",
+  "identityRegistry": {
+    "address": "0x...",
+    "startBlock": 1
+  },
+  "reputationRegistry": {
+    "address": "0x...",
+    "startBlock": 1
+  },
+  "validationRegistry": {
+    "address": "0x...",
+    "startBlock": 1
+  },
+  "graphNode": {
+    "network": "new-network"
+  }
+}
+```
+
+2. Add to `deployments/deployment.json`
+```json
+{
+  "erc-8004": {
+    "deployments": {
+      "erc-8004-new-network": {
+        "network": "new-network",
+        "status": "prod",
+        "configFile": "config/networks/new-network.json",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      }
+    }
+  }
+}
+```
+
+3. Add chain ID mapping in `src/utils/chain.ts`
+```typescript
+if (network == "new-network") {
+  return 123456  // New Network chain ID
+}
+```
+
+4. Add contract addresses in `src/contract-addresses.ts`
+```typescript
+if (chainId.equals(BigInt.fromI32(123456))) {
+  return new ContractAddresses(
+    Bytes.fromHexString("0x..."),  // Identity
+    Bytes.fromHexString("0x..."),  // Reputation
+    Bytes.fromHexString("0x...")   // Validation
+  )
+}
+```
+
+5. Generate and build: `npm run build:all`
+
+**Time to add new network:** < 5 minutes
+
+### Deployment
+
+```bash
+# Deploy to The Graph Studio (requires auth token)
+# Set your deployment key first:
+# graph auth --studio <DEPLOY_KEY>
+
+# Deploy specific network
+DEPLOYMENT=erc-8004-eth-sepolia npm run deploy
 
 # Or deploy locally for testing
-# See below for graph node & ipfs setup
 npm run create-local && npm run deploy-local
 ```
 
@@ -54,8 +177,7 @@ This subgraph indexes data from three core smart contracts implementing the ERC-
 - ✅ **Validation Tracking** - Complete validation lifecycle with status management
 - 📁 **IPFS & Arweave Integration** - Native JSON parsing via File Data Sources
 - 🔄 **Rich Relationships** - Connected data through derived fields and references
-
-**Note:** Currently deployed for Ethereum Sepolia only. Additional networks coming soon.
+- 🌐 **Multi-Chain Support** - Single codebase deploying to 7 networks
 
 ## 🏗️ Architecture
 
@@ -477,41 +599,52 @@ The subgraph uses **File Data Sources** to parse off-chain content from multiple
 
 Addresses are managed in `src/contract-addresses.ts` for dynamic per-chain resolution.
 
-### Supported Chains
-
-**Currently Deployed:**
-- **Ethereum Sepolia**: Chain ID 11155111
-  - Endpoint: `https://gateway.thegraph.com/api/00a452ad3cd1900273ea62c1bf283f93/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT`
-
-**Code Support (Not Yet Deployed):**
-- **Base Sepolia**: Chain ID 84532
-- **Linea Sepolia**: Chain ID 59141
-
-To deploy for additional chains:
-1. Ensure addresses are configured in `src/contract-addresses.ts`
-2. Verify data sources exist in `subgraph.yaml`
-3. Deploy to The Graph Network with appropriate network name
 
 ## 🚀 Development
 
 ### Local Development
 
-Ensure that you have Docker installed and running on your machine: https://docs.docker.com/get-started/get-docker. This will come with the `docker compose` set of commands needed below.
+**Important:** Local development requires Docker. The old `graph node` CLI command is no longer supported. Use Docker Compose as described below.
+
+**Prerequisites:**
+- Docker and Docker Compose installed ([Get Docker](https://docs.docker.com/get-started/get-docker))
+
+**Setup Steps:**
+
+1. Start local Graph node, IPFS, and PostgreSQL using Docker Compose:
+```bash
+docker compose up -d
+```
+
+2. Wait for services to be ready (this may take a minute):
+```bash
+# Check service status
+docker compose ps
+```
+
+3. Create local subgraph:
+```bash
+npm run create-local
+```
+
+4. Deploy locally:
+```bash
+npm run deploy-local
+```
+
+5. Query local endpoint:
 
 ```bash
-# Start local Graph node using `compose.yml`
-docker compose up -d
-
-# Create local subgraph
-npm run create-local
-
-# Deploy locally
-npm run deploy-local
-
-# Query local endpoint
+# Simple query (just IDs)
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"query": "{ agents(first: 5) { id } }"}' \
+  http://localhost:8000/subgraphs/name/agent0-sdk/agent0-sdk
+
+# Complete query with agent name (note: name is in registrationFile, not directly on Agent)
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ agents(first: 5) { id registrationFile { name description } } }"}' \
   http://localhost:8000/subgraphs/name/agent0-sdk/agent0-sdk
 ```
 

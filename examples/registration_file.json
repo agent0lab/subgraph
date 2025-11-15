@@ -35,6 +35,20 @@
       ]
     },
     {
+      "name": "OASF",
+      "endpoint": "https://github.com/agntcy/oasf/",
+      "version": "v0.8.0",
+      "skills": [
+        "skill_1",
+        "skill_2",
+        "skill_3"
+      ],
+      "domains": [
+        "domain_1",
+        "domain_2"
+      ]
+    },
+    {
       "name": "ENS",
       "endpoint": "vitalik.eth",
       "version": "v1"

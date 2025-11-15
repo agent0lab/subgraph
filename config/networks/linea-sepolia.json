@@ -1,0 +1,20 @@
+{
+  "network": "linea-sepolia",
+  "chainId": "59141",
+  "displayName": "Linea Sepolia",
+  "identityRegistry": {
+    "address": "0x8004aa7C931bCE1233973a0C6A667f73F66282e7",
+    "startBlock": 19589847
+  },
+  "reputationRegistry": {
+    "address": "0x8004bd8483b99310df121c46ED8858616b2Bba02",
+    "startBlock": 19589847
+  },
+  "validationRegistry": {
+    "address": "0x8004c44d1EFdd699B2A26e781eF7F77c56A9a4EB",
+    "startBlock": 19589847
+  },
+  "graphNode": {
+    "network": "linea-sepolia"
+  }
+}
