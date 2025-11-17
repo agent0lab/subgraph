@@ -217,7 +217,7 @@ type Feedback @entity(immutable: false) {
   score: Int!                # 0-100 score
   tag1: String              # Primary category tag
   tag2: String              # Secondary category tag
-  feedbackUri: String        # IPFS/Arweave/HTTPS URI for rich content
+  feedbackUri: String        # URI for rich content (IPFS, Arweave, HTTPS, etc.)
   feedbackURIType: String
   feedbackHash: Bytes!
   isRevoked: Boolean!
@@ -254,7 +254,7 @@ enum ValidationStatus {
 
 ### Off-Chain Entities (Immutable from IPFS/Arweave)
 
-**Rich metadata fetched from IPFS/Arweave/HTTPS URIs:**
+**Rich metadata fetched from IPFS and Arweave URIs:**
 
 #### AgentRegistrationFile
 ```graphql
@@ -556,38 +556,40 @@ The subgraph uses **File Data Sources** to parse off-chain content from multiple
 
 ### RegistrationFile Data Source
 
-- **Handler**: `src/registration-file.ts` (unified handler for all protocols)
-- **Trigger**: When `agentURI` points to IPFS/Arweave/HTTPS content
+- **Handler**: `src/registration-file.ts` (unified handler for both IPFS and Arweave)
+- **Trigger**: When `agentURI` is an IPFS or Arweave URI
 - **Output**: `AgentRegistrationFile` entity
 - **Data Parsed**: Metadata, capabilities, endpoints, identity information
 - **Templates**:
-  - `IPFSRegistrationFile` (kind: `file/ipfs`)
+  - `RegistrationFile` (kind: `file/ipfs`)
   - `ArweaveRegistrationFile` (kind: `file/arweave`)
 
 ### FeedbackFile Data Source
 
-- **Handler**: `src/feedback-file.ts` (unified handler for all protocols)
-- **Trigger**: When `feedbackUri` points to IPFS/Arweave/HTTPS content
+- **Handler**: `src/feedback-file.ts` (unified handler for both IPFS and Arweave)
+- **Trigger**: When `feedbackUri` is an IPFS or Arweave URI
 - **Output**: `FeedbackFile` entity
 - **Data Parsed**: Detailed feedback text, proof of payment, context
 - **Templates**:
-  - `IPFSFeedbackFile` (kind: `file/ipfs`)
+  - `FeedbackFile` (kind: `file/ipfs`)
   - `ArweaveFeedbackFile` (kind: `file/arweave`)
 
 ### Supported URI Formats
 
+The subgraph processes **IPFS and Arweave** URIs using file data sources:
+
 - **IPFS**: `ipfs://QmHash...` or bare `QmHash...`
 - **Arweave**: `ar://transactionId...`
-- **HTTPS**: `https://example.com/file.json`
-- **HTTP**: `http://example.com/file.json`
+
+HTTPS and HTTP URIs are detected and classified in the `agentURIType` field but are not currently processed by file data sources.
 
 **Note:** The Graph Node automatically handles protocol-specific fetching. Both IPFS and Arweave templates call the same unified handler functions, which use shared JSON parsing utilities to ensure consistent data extraction regardless of storage protocol.
 
 ## 🔄 Data Flow
 
 1. **On-chain Events** → Contract events trigger indexing
-2. **URI Detection** → Subgraph detects IPFS/Arweave/HTTPS URIs and creates appropriate file data sources
-3. **File Fetching** → The Graph Node fetches content via protocol-specific methods (IPFS gateways, Arweave gateways, or HTTPS)
+2. **URI Detection** → Subgraph detects IPFS and Arweave URIs and creates appropriate file data sources
+3. **File Fetching** → The Graph Node fetches content via protocol-specific methods (IPFS gateways or Arweave gateways)
 4. **Unified Parsing** → File Data Sources parse JSON using shared utility functions
 5. **Entity Creation** → Immutable file entities created with protocol-agnostic schema
 6. **Relationship Links** → On-chain entities link to file entities via derived fields
