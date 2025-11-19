@@ -95,10 +95,11 @@ dataSources:
       file: ./src/validation-registry.ts
 
 # =============================================================================
-# FILE DATA SOURCES (IPFS)
+# FILE DATA SOURCES (IPFS & ARWEAVE)
 # =============================================================================
 
 templates:
+  # IPFS Templates
   - kind: file/ipfs
     name: RegistrationFile
     network: sepolia
@@ -116,6 +117,37 @@ templates:
 
   - kind: file/ipfs
     name: FeedbackFile
+    network: sepolia
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/feedback-file.ts
+      handler: parseFeedbackFile
+      entities:
+        - FeedbackFile
+        - Feedback
+      abis:
+        - name: ReputationRegistry
+          file: ./abis/ReputationRegistry.json
+
+  # Arweave Templates (reuse same handlers as IPFS)
+  - kind: file/arweave
+    name: ArweaveRegistrationFile
+    network: sepolia
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/registration-file.ts
+      handler: parseRegistrationFile
+      entities:
+        - AgentRegistrationFile
+        - Agent
+      abis:
+        - name: IdentityRegistry
+          file: ./abis/IdentityRegistry.json
+
+  - kind: file/arweave
+    name: ArweaveFeedbackFile
     network: sepolia
     mapping:
       apiVersion: 0.0.7

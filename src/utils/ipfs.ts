@@ -165,9 +165,12 @@ export function extractIpfsHash(uri: string): string {
 
 /**
  * Determine the URI type for an agent or feedback URI
+ * Returns: "ipfs", "arweave", "https", "http", or "unknown"
  */
 export function determineUriType(uri: string): string {
-  if (uri.startsWith("ipfs://")) {
+  if (uri.startsWith("ar://")) {
+    return "arweave"
+  } else if (uri.startsWith("ipfs://")) {
     return "ipfs"
   } else if (isIpfsGatewayUrl(uri)) {
     return "ipfs"  // Gateway URLs are still IPFS

@@ -13,7 +13,7 @@ type Agent @entity(immutable: false) {
   
   # Basic on-chain information
   agentURI: String
-  agentURIType: String # "ipfs", "https", "http", "unknown"
+  agentURIType: String # "ipfs", "arweave", "https", "http", "unknown"
   
   # Ownership and permissions
   owner: Bytes! # Address
@@ -187,12 +187,12 @@ type GlobalStats @entity(immutable: false) {
 }
 
 # =============================================================================
-# IMMUTABLE FILE-BASED ENTITIES (IPFS Data Sources)
+# IMMUTABLE FILE-BASED ENTITIES (IPFS & Arweave Data Sources)
 # =============================================================================
 
 type AgentRegistrationFile @entity(immutable: true) {
   id: ID! # Format: "transactionHash:cid"
-  cid: String! # IPFS CID (for querying by content)
+  cid: String! # Storage-agnostic content identifier (IPFS CID or Arweave txId)
   
   # Agent link (passed via context)
   agentId: String! # Format: "chainId:agentId"
@@ -228,7 +228,7 @@ type AgentRegistrationFile @entity(immutable: true) {
 
 type FeedbackFile @entity(immutable: true) {
   id: ID! # Format: "transactionHash:cid"
-  cid: String! # IPFS CID (for querying by content)
+  cid: String! # Storage-agnostic content identifier (IPFS CID or Arweave txId)
   
   # Feedback link (passed via context)
   feedbackId: String! # Format: "chainId:agentId:clientAddress:feedbackIndex"

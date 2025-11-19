@@ -1,6 +1,7 @@
 import { Address, BigInt, Bytes, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
 import { getChainId } from "./utils/chain"
 import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction } from "./utils/ipfs"
+import { isArweaveUri, extractArweaveTxId, logArweaveExtraction } from "./utils/arweave"
 import {
   Registered,
   MetadataSet,
@@ -9,7 +10,7 @@ import {
   Approval,
   ApprovalForAll
 } from "../generated/IdentityRegistry/IdentityRegistry"
-import { RegistrationFile } from "../generated/templates"
+import { RegistrationFile, ArweaveRegistrationFile } from "../generated/templates"
 import {
   Agent,
   AgentMetadata,
@@ -73,28 +74,50 @@ export function handleAgentRegistered(event: Registered): void {
   
   globalStats.updatedAt = event.block.timestamp
   globalStats.save()
-  
+
+  // Handle file data source creation (mutually exclusive: IPFS or Arweave)
   if (event.params.tokenURI.length > 0 && isIpfsUri(event.params.tokenURI)) {
     let ipfsHash = extractIpfsHash(event.params.tokenURI)
     logIpfsExtraction("agent registration", event.params.tokenURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
       let fileId = `${txHash}:${ipfsHash}`
-      
+
       let context = new DataSourceContext()
       context.setString('agentId', agentEntityId)
       context.setString('cid', ipfsHash)
       context.setString('txHash', txHash)
       context.setBigInt('timestamp', event.block.timestamp)
       RegistrationFile.createWithContext(ipfsHash, context)
-      
+
       // Set the connection to the composite ID
       agent.registrationFile = fileId
       agent.save()
       log.info("Set registrationFile connection for agent {} to ID: {}", [agentEntityId, fileId])
     }
   }
-  
+  // Arweave handling (mutually exclusive with IPFS)
+  else if (event.params.tokenURI.length > 0 && isArweaveUri(event.params.tokenURI)) {
+    let arweaveTxId = extractArweaveTxId(event.params.tokenURI)
+    logArweaveExtraction("agent registration", event.params.tokenURI, arweaveTxId)
+
+    if (arweaveTxId.length > 0) {
+      let txHash = event.transaction.hash.toHexString()
+      let fileId = `${txHash}:${arweaveTxId}`
+
+      let context = new DataSourceContext()
+      context.setString('agentId', agentEntityId)
+      context.setString('cid', arweaveTxId)  // Storage-agnostic: use 'cid' for both IPFS and Arweave
+      context.setString('txHash', txHash)
+      context.setBigInt('timestamp', event.block.timestamp)
+      ArweaveRegistrationFile.createWithContext(arweaveTxId, context)
+
+      agent.registrationFile = fileId
+      agent.save()
+      log.info("Set registrationFile connection for agent {} to Arweave ID: {}", [agentEntityId, fileId])
+    }
+  }
+
   log.info("Agent registered: {} on chain {}", [agentId.toString(), chainId.toString()])
 }
 
@@ -141,7 +164,8 @@ export function handleUriUpdated(event: UriUpdated): void {
   agent.agentURI = event.params.newUri
   agent.updatedAt = event.block.timestamp
   agent.save()
-  
+
+  // Handle file data source creation (mutually exclusive: IPFS or Arweave)
   if (isIpfsUri(event.params.newUri)) {
     agent.agentURIType = "ipfs"
     agent.save()
@@ -150,14 +174,14 @@ export function handleUriUpdated(event: UriUpdated): void {
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
       let fileId = `${txHash}:${ipfsHash}`
-      
+
       let context = new DataSourceContext()
       context.setString('agentId', agentEntityId)
       context.setString('cid', ipfsHash)
       context.setString('txHash', txHash)
       context.setBigInt('timestamp', event.block.timestamp)
       RegistrationFile.createWithContext(ipfsHash, context)
-      
+
       // Set the connection to the composite ID
       agent.registrationFile = fileId
       agent.save()
@@ -165,7 +189,30 @@ export function handleUriUpdated(event: UriUpdated): void {
     }
     // updateProtocolActiveCounts removed - active/inactive stats removed
   }
-  
+  // Arweave handling (mutually exclusive with IPFS)
+  else if (isArweaveUri(event.params.newUri)) {
+    agent.agentURIType = "arweave"
+    agent.save()
+    let arweaveTxId = extractArweaveTxId(event.params.newUri)
+    logArweaveExtraction("agent URI update", event.params.newUri, arweaveTxId)
+
+    if (arweaveTxId.length > 0) {
+      let txHash = event.transaction.hash.toHexString()
+      let fileId = `${txHash}:${arweaveTxId}`
+
+      let context = new DataSourceContext()
+      context.setString('agentId', agentEntityId)
+      context.setString('cid', arweaveTxId)  // Storage-agnostic: use 'cid' for both IPFS and Arweave
+      context.setString('txHash', txHash)
+      context.setBigInt('timestamp', event.block.timestamp)
+      ArweaveRegistrationFile.createWithContext(arweaveTxId, context)
+
+      agent.registrationFile = fileId
+      agent.save()
+      log.info("Set registrationFile connection for agent {} to Arweave ID: {}", [agentEntityId, fileId])
+    }
+  }
+
   log.info("Agent URI updated for agent {}: {}", [agentEntityId, event.params.newUri])
 }
 

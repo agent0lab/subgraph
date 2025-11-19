@@ -1,12 +1,16 @@
 import { BigInt, Bytes, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
 import { getChainId } from "./utils/chain"
 import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction, bytes32ToString } from "./utils/ipfs"
+import { isArweaveUri, extractArweaveTxId, logArweaveExtraction } from "./utils/arweave"
 import {
   NewFeedback,
   FeedbackRevoked,
   ResponseAppended
 } from "../generated/ReputationRegistry/ReputationRegistry"
-import { FeedbackFile as FeedbackFileTemplate } from "../generated/templates"
+import {
+  FeedbackFile as FeedbackFileTemplate,
+  ArweaveFeedbackFile as ArweaveFeedbackFileTemplate
+} from "../generated/templates"
 import {
   Agent,
   Feedback,
@@ -59,15 +63,15 @@ export function handleNewFeedback(event: NewFeedback): void {
   }
   
   feedback.save()
-  
-  // Trigger IPFS file data source if URI is IPFS
+
+  // Handle file data source creation (mutually exclusive: IPFS or Arweave)
   if (event.params.feedbackUri.length > 0 && isIpfsUri(event.params.feedbackUri)) {
     let ipfsHash = extractIpfsHash(event.params.feedbackUri)
     logIpfsExtraction("feedback", event.params.feedbackUri, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
       let fileId = `${txHash}:${ipfsHash}`
-      
+
       let context = new DataSourceContext()
       context.setString('feedbackId', feedbackId)
       context.setString('cid', ipfsHash)
@@ -76,14 +80,37 @@ export function handleNewFeedback(event: NewFeedback): void {
       context.setString('tag1OnChain', feedback.tag1 ? feedback.tag1! : "")
       context.setString('tag2OnChain', feedback.tag2 ? feedback.tag2! : "")
       FeedbackFileTemplate.createWithContext(ipfsHash, context)
-      
+
       // Set the connection to the composite ID
       feedback.feedbackFile = fileId
       feedback.save()
       log.info("Set feedbackFile connection for feedback {} to ID: {}", [feedbackId, fileId])
     }
   }
-  
+  // Arweave handling (mutually exclusive with IPFS)
+  else if (event.params.feedbackUri.length > 0 && isArweaveUri(event.params.feedbackUri)) {
+    let arweaveTxId = extractArweaveTxId(event.params.feedbackUri)
+    logArweaveExtraction("feedback", event.params.feedbackUri, arweaveTxId)
+
+    if (arweaveTxId.length > 0) {
+      let txHash = event.transaction.hash.toHexString()
+      let fileId = `${txHash}:${arweaveTxId}`
+
+      let context = new DataSourceContext()
+      context.setString('feedbackId', feedbackId)
+      context.setString('cid', arweaveTxId)  // Storage-agnostic: use 'cid' for both IPFS and Arweave
+      context.setString('txHash', txHash)
+      context.setBigInt('timestamp', event.block.timestamp)
+      context.setString('tag1OnChain', feedback.tag1 ? feedback.tag1! : "")
+      context.setString('tag2OnChain', feedback.tag2 ? feedback.tag2! : "")
+      ArweaveFeedbackFileTemplate.createWithContext(arweaveTxId, context)
+
+      feedback.feedbackFile = fileId
+      feedback.save()
+      log.info("Set feedbackFile connection for feedback {} to Arweave ID: {}", [feedbackId, fileId])
+    }
+  }
+
   // Update agent statistics
   updateAgentStats(agent, event.params.score, event.block.timestamp)
   
