@@ -3,17 +3,14 @@
   "chainId": "11155111",
   "displayName": "Ethereum Sepolia",
   "identityRegistry": {
-    "address": "0x8004a6090Cd10A7288092483047B097295Fb8847",
-    "startBlock": 9493000
+    "address": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "startBlock": 9980000
   },
   "reputationRegistry": {
-    "address": "0x8004B8FD1A363aa02fDC07635C0c5F94f6Af5B7E",
-    "startBlock": 9493000
+    "address": "0x8004B663056A597Dffe9eCcC1965A193B7388713",
+    "startBlock": 9980000
   },
-  "validationRegistry": {
-    "address": "0x8004CB39f29c09145F24Ad9dDe2A108C1A2cdfC5",
-    "startBlock": 9493000
-  },
+  "validationRegistry": {},
   "graphNode": {
     "network": "sepolia"
   }

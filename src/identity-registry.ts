@@ -1,10 +1,13 @@
 import { Address, BigInt, Bytes, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
 import { getChainId } from "./utils/chain"
 import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction } from "./utils/ipfs"
+import { isJsonBase64DataUri, extractBase64PayloadFromDataUri } from "./utils/data-uri"
+import { base64DecodeToBytes } from "./utils/base64"
+import { populateRegistrationFromJsonBytes } from "./utils/registration-parser"
 import {
   Registered,
   MetadataSet,
-  UriUpdated,
+  URIUpdated,
   Transfer,
   Approval,
   ApprovalForAll
@@ -42,15 +45,13 @@ export function handleAgentRegistered(event: Registered): void {
   }
   
   agent.owner = event.params.owner
-  agent.agentURI = event.params.tokenURI
-  
-  agent.agentURIType = determineUriType(event.params.tokenURI)
+  agent.agentURI = event.params.agentURI
+  agent.agentURIType = determineUriType(event.params.agentURI)
   
   agent.updatedAt = event.block.timestamp
   
   agent.save()
   
-  updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp)
   updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp)
   
   // Update global stats - agent registration
@@ -74,9 +75,10 @@ export function handleAgentRegistered(event: Registered): void {
   globalStats.updatedAt = event.block.timestamp
   globalStats.save()
   
-  if (event.params.tokenURI.length > 0 && isIpfsUri(event.params.tokenURI)) {
-    let ipfsHash = extractIpfsHash(event.params.tokenURI)
-    logIpfsExtraction("agent registration", event.params.tokenURI, ipfsHash)
+  // Registration file indexing: IPFS or base64 data URI
+  if (event.params.agentURI.length > 0 && isIpfsUri(event.params.agentURI)) {
+    let ipfsHash = extractIpfsHash(event.params.agentURI)
+    logIpfsExtraction("agent registration", event.params.agentURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
       let fileId = `${txHash}:${ipfsHash}`
@@ -93,6 +95,30 @@ export function handleAgentRegistered(event: Registered): void {
       agent.save()
       log.info("Set registrationFile connection for agent {} to ID: {}", [agentEntityId, fileId])
     }
+  } else if (event.params.agentURI.length > 0 && isJsonBase64DataUri(event.params.agentURI)) {
+    let txHash = event.transaction.hash.toHexString()
+    let fileId = `${txHash}:datauri:${event.logIndex.toString()}`
+
+    let b64 = extractBase64PayloadFromDataUri(event.params.agentURI)
+    let decoded = base64DecodeToBytes(b64)
+
+    let registration = new AgentRegistrationFile(fileId)
+    registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
+    registration.agentId = agentEntityId
+    registration.createdAt = event.block.timestamp
+    registration.supportedTrusts = []
+    registration.mcpTools = []
+    registration.mcpPrompts = []
+    registration.mcpResources = []
+    registration.a2aSkills = []
+    registration.oasfSkills = []
+    registration.oasfDomains = []
+
+    populateRegistrationFromJsonBytes(registration, decoded)
+    registration.save()
+
+    agent.registrationFile = fileId
+    agent.save()
   }
   
   log.info("Agent registered: {} on chain {}", [agentId.toString(), chainId.toString()])
@@ -108,12 +134,32 @@ export function handleMetadataSet(event: MetadataSet): void {
     log.warning("Metadata set for unknown agent: {}", [agentEntityId])
     return
   }
+  // Special-case agentWallet: decode metadataValue bytes into a 20-byte address and store on Agent
+  if (event.params.metadataKey == "agentWallet") {
+    let v = event.params.metadataValue
+    // Accept 20-byte raw address, or 32-byte ABI-encoded address (take last 20 bytes).
+    if (v.length == 20) {
+      agent.agentWallet = v
+      agent.updatedAt = event.block.timestamp
+      agent.save()
+    } else if (v.length == 32) {
+      let addr = v.subarray(12, 32) // last 20 bytes
+      agent.agentWallet = Bytes.fromUint8Array(addr)
+      agent.updatedAt = event.block.timestamp
+      agent.save()
+    } else {
+      log.warning("agentWallet metadataValue has unexpected length {} for agent {}", [
+        v.length.toString(),
+        agentEntityId
+      ])
+    }
+  }
   
-  let metadataId = `${agentId.toString()}:${event.params.key}`
+  let metadataId = `${chainId.toString()}:${agentId.toString()}:${event.params.metadataKey}`
   let metadata = new AgentMetadata(metadataId)
   metadata.agent = agentEntityId
-  metadata.key = event.params.key
-  metadata.value = event.params.value
+  metadata.key = event.params.metadataKey
+  metadata.value = event.params.metadataValue
   metadata.updatedAt = event.block.timestamp
   metadata.save()
   
@@ -122,12 +168,12 @@ export function handleMetadataSet(event: MetadataSet): void {
   
   log.info("Metadata set for agent {}: {} = {}", [
     agentEntityId,
-    event.params.key,
-    event.params.value.toHexString()
+    event.params.metadataKey,
+    event.params.metadataValue.toHexString()
   ])
 }
 
-export function handleUriUpdated(event: UriUpdated): void {
+export function handleUriUpdated(event: URIUpdated): void {
   let agentId = event.params.agentId
   let chainId = getChainId()
   let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
@@ -138,15 +184,14 @@ export function handleUriUpdated(event: UriUpdated): void {
     return
   }
   
-  agent.agentURI = event.params.newUri
+  agent.agentURI = event.params.newURI
   agent.updatedAt = event.block.timestamp
+  agent.agentURIType = determineUriType(event.params.newURI)
   agent.save()
   
-  if (isIpfsUri(event.params.newUri)) {
-    agent.agentURIType = "ipfs"
-    agent.save()
-    let ipfsHash = extractIpfsHash(event.params.newUri)
-    logIpfsExtraction("agent URI update", event.params.newUri, ipfsHash)
+  if (isIpfsUri(event.params.newURI)) {
+    let ipfsHash = extractIpfsHash(event.params.newURI)
+    logIpfsExtraction("agent URI update", event.params.newURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
       let fileId = `${txHash}:${ipfsHash}`
@@ -164,9 +209,33 @@ export function handleUriUpdated(event: UriUpdated): void {
       log.info("Set registrationFile connection for agent {} to ID: {}", [agentEntityId, fileId])
     }
     // updateProtocolActiveCounts removed - active/inactive stats removed
+  } else if (event.params.newURI.length > 0 && isJsonBase64DataUri(event.params.newURI)) {
+    let txHash = event.transaction.hash.toHexString()
+    let fileId = `${txHash}:datauri:${event.logIndex.toString()}`
+
+    let b64 = extractBase64PayloadFromDataUri(event.params.newURI)
+    let decoded = base64DecodeToBytes(b64)
+
+    let registration = new AgentRegistrationFile(fileId)
+    registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
+    registration.agentId = agentEntityId
+    registration.createdAt = event.block.timestamp
+    registration.supportedTrusts = []
+    registration.mcpTools = []
+    registration.mcpPrompts = []
+    registration.mcpResources = []
+    registration.a2aSkills = []
+    registration.oasfSkills = []
+    registration.oasfDomains = []
+
+    populateRegistrationFromJsonBytes(registration, decoded)
+    registration.save()
+
+    agent.registrationFile = fileId
+    agent.save()
   }
   
-  log.info("Agent URI updated for agent {}: {}", [agentEntityId, event.params.newUri])
+  log.info("Agent URI updated for agent {}: {}", [agentEntityId, event.params.newURI])
 }
 
 export function handleTransfer(event: Transfer): void {

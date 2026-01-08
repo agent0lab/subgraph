@@ -167,6 +167,9 @@ export function extractIpfsHash(uri: string): string {
  * Determine the URI type for an agent or feedback URI
  */
 export function determineUriType(uri: string): string {
+  if (uri.startsWith("data:")) {
+    return "data"
+  }
   if (uri.startsWith("ipfs://")) {
     return "ipfs"
   } else if (isIpfsGatewayUrl(uri)) {

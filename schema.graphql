@@ -17,6 +17,7 @@ type Agent @entity(immutable: false) {
   
   # Ownership and permissions
   owner: Bytes! # Address
+  agentWallet: Bytes # Address (20 bytes). Sourced from on-chain MetadataSet(metadataKey == "agentWallet")
   operators: [Bytes!]! # List of approved operators
   
   # Status and metadata
@@ -43,12 +44,14 @@ type Feedback @entity(immutable: false) {
   # Relationships
   agent: Agent!
   clientAddress: Bytes!
+  feedbackIndex: BigInt!
   
   # On-chain feedback data
   score: Int!
   tag1: String
   tag2: String
-  feedbackUri: String
+  endpoint: String
+  feedbackURI: String
   feedbackURIType: String
   feedbackHash: Bytes
   
@@ -96,7 +99,7 @@ type Validation @entity(immutable: false) {
 }
 
 type AgentMetadata @entity(immutable: false) {
-  id: ID! # Format: "agentId:key"
+  id: ID! # Format: "chainId:agentId:key"
   agent: Agent!
   key: String!
   value: Bytes!
@@ -206,16 +209,21 @@ type AgentRegistrationFile @entity(immutable: true) {
   supportedTrusts: [String!]!
   
   # Endpoints
+  endpointsRawJson: String
   mcpEndpoint: String
   mcpVersion: String
   a2aEndpoint: String
   a2aVersion: String
+  webEndpoint: String
+  oasfEndpoint: String
+  oasfVersion: String
+  oasfSkills: [String!]!
+  oasfDomains: [String!]!
+  emailEndpoint: String
   
   # External identifiers
   ens: String
   did: String
-  agentWallet: Bytes
-  agentWalletChainId: BigInt # Chain ID for the wallet address
   
   # Capabilities (not implemented yet)
   mcpTools: [String!]!

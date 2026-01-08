@@ -7,9 +7,7 @@ dataSources:
     name: IdentityRegistry
     network: {{ graphNode.network }}
     source:
-      address: "{{ identityRegistry.address }}"
       abi: IdentityRegistry
-      startBlock: {{ identityRegistry.startBlock }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -21,13 +19,13 @@ dataSources:
         - GlobalStats
       abis:
         - name: IdentityRegistry
-          file: ../../../abis/IdentityRegistry.json
+          file: ../../../abis/IdentityRegistry_updated.json
       eventHandlers:
         - event: Registered(indexed uint256,string,indexed address)
           handler: handleAgentRegistered
         - event: MetadataSet(indexed uint256,indexed string,string,bytes)
           handler: handleMetadataSet
-        - event: UriUpdated(indexed uint256,string,indexed address)
+        - event: URIUpdated(indexed uint256,string,indexed address)
           handler: handleUriUpdated
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
@@ -42,9 +40,7 @@ dataSources:
     name: ReputationRegistry
     network: {{ graphNode.network }}
     source:
-      address: "{{ reputationRegistry.address }}"
       abi: ReputationRegistry
-      startBlock: {{ reputationRegistry.startBlock }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -57,9 +53,9 @@ dataSources:
         - GlobalStats
       abis:
         - name: ReputationRegistry
-          file: ../../../abis/ReputationRegistry.json
+          file: ../../../abis/ReputationRegistry_updated.json
       eventHandlers:
-        - event: NewFeedback(indexed uint256,indexed address,uint8,indexed bytes32,bytes32,string,bytes32)
+        - event: NewFeedback(indexed uint256,indexed address,uint64,uint8,indexed string,string,string,string,bytes32)
           handler: handleNewFeedback
         - event: FeedbackRevoked(indexed uint256,indexed address,indexed uint64)
           handler: handleFeedbackRevoked
@@ -67,32 +63,30 @@ dataSources:
           handler: handleResponseAppended
       file: ../../../src/reputation-registry.ts
 
-  # Validation Registry
-  - kind: ethereum
-    name: ValidationRegistry
-    network: {{ graphNode.network }}
-    source:
-      address: "{{ validationRegistry.address }}"
-      abi: ValidationRegistry
-      startBlock: {{ validationRegistry.startBlock }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Agent
-        - Validation
-        - AgentStats
-        - GlobalStats
-      abis:
-        - name: ValidationRegistry
-          file: ../../../abis/ValidationRegistry.json
-      eventHandlers:
-        - event: ValidationRequest(indexed address,indexed uint256,string,indexed bytes32)
-          handler: handleValidationRequest
-        - event: ValidationResponse(indexed address,indexed uint256,indexed bytes32,uint8,string,bytes32,bytes32)
-          handler: handleValidationResponse
-      file: ../../../src/validation-registry.ts
+  # Validation Registry (PAUSED: indexing disabled; keep mapping code for later re-enable)
+  # - kind: ethereum
+  #   name: ValidationRegistry
+  #   network: {{ graphNode.network }}
+  #   source:
+  #     abi: ValidationRegistry
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - Agent
+  #       - Validation
+  #       - AgentStats
+  #       - GlobalStats
+  #     abis:
+  #       - name: ValidationRegistry
+  #         file: ../../../abis/ValidationRegistry_updated.json
+  #     eventHandlers:
+  #       - event: ValidationRequest(indexed address,indexed uint256,string,indexed bytes32)
+  #         handler: handleValidationRequest
+  #       - event: ValidationResponse(indexed address,indexed uint256,indexed bytes32,uint8,string,bytes32,string)
+  #         handler: handleValidationResponse
+  #     file: ../../../src/validation-registry.ts
 
 # =============================================================================
 # FILE DATA SOURCES (IPFS)
@@ -112,7 +106,7 @@ templates:
         - Agent
       abis:
         - name: IdentityRegistry
-          file: ../../../abis/IdentityRegistry.json
+          file: ../../../abis/IdentityRegistry_updated.json
 
   - kind: file/ipfs
     name: FeedbackFile
@@ -127,4 +121,4 @@ templates:
         - Feedback
       abis:
         - name: ReputationRegistry
-          file: ../../../abis/ReputationRegistry.json
+          file: ../../../abis/ReputationRegistry_updated.json

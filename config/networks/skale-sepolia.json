@@ -2,18 +2,9 @@
   "network": "skale-base-sepolia-testnet",
   "chainId": "1351057110",
   "displayName": "SKALE Base Sepolia Testnet",
-  "identityRegistry": {
-    "address": "0x4fa7900596c9830664406d3796952c59ec4133d9",
-    "startBlock": 1
-  },
-  "reputationRegistry": {
-    "address": "0x9b9d23a47697691ef1016906d1f8ddfc009e6a69",
-    "startBlock": 1
-  },
-  "validationRegistry": {
-    "address": "0x34ae1196b1609e01ebc90b75c802b2ea87203f13",
-    "startBlock": 1
-  },
+  "identityRegistry": {},
+  "reputationRegistry": {},
+  "validationRegistry": {},
   "graphNode": {
     "network": "skale-base-sepolia-testnet"
   }

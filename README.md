@@ -7,12 +7,12 @@ A multi-chain subgraph for indexing [ERC-8004](https://eips.ethereum.org/EIP-800
 | Network | Chain ID | Status | Endpoint |
 |---------|----------|--------|----------|
 | **Ethereum Sepolia** | 11155111 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT) |
-| **Base Sepolia** | 84532 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/GjQEDgEKqoh5Yc8MUgxoQoRATEJdEiH7HbocfR1aFiHa) |
-| **Polygon Amoy** | 80002 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/2A1JB18r1mF2VNP4QBH4mmxd74kbHoM6xLXC8ABAKf7j) |
-| **Linea Sepolia** | 59141 | ✅ Ready | - |
-| **Hedera Testnet** | 296 | ✅ Ready | - |
-| **HyperEVM Testnet** | 998 | ✅ Ready | - |
-| **SKALE Base Sepolia** | 1351057110 | ✅ Ready | - |
+| **Base Sepolia** | 84532 | ⛔️ Contracts not deployed | - |
+| **Polygon Amoy** | 80002 | ⛔️ Contracts not deployed | - |
+| **Linea Sepolia** | 59141 | ⛔️ Contracts not deployed | - |
+| **Hedera Testnet** | 296 | ⛔️ Contracts not deployed | - |
+| **HyperEVM Testnet** | 998 | ⛔️ Contracts not deployed | - |
+| **SKALE Base Sepolia** | 1351057110 | ⛔️ Contracts not deployed | - |
 
 ## 🚀 Quick Start
 

@@ -30,23 +30,20 @@ function validateNetworkConfig(networkName, config) {
   if (!config.displayName) errors.push('Missing "displayName" field');
 
   // Registry configs
+  // Addresses/startBlocks are optional and may be managed outside this repo or provided for convenience.
   const registries = ['identityRegistry', 'reputationRegistry', 'validationRegistry'];
   for (const registry of registries) {
     if (!config[registry]) {
-      errors.push(`Missing "${registry}" configuration`);
-    } else {
-      if (!config[registry].address) {
-        errors.push(`Missing "${registry}.address"`);
-      } else {
-        // Check address format
-        if (!/^0x[a-fA-F0-9]{40}$/.test(config[registry].address)) {
-          errors.push(`Invalid address format for "${registry}.address": ${config[registry].address}`);
-        }
-      }
-      if (config[registry].startBlock === undefined) {
-        warnings.push(`Missing "${registry}.startBlock" (will default to 0)`);
+      warnings.push(`Missing "${registry}" configuration (ok if deployment details are managed elsewhere)`);
+      continue;
+    }
+    if (config[registry].address !== undefined) {
+      // Check address format (if provided)
+      if (!/^0x[a-fA-F0-9]{40}$/.test(config[registry].address)) {
+        errors.push(`Invalid address format for "${registry}.address": ${config[registry].address}`);
       }
     }
+    // startBlock is optional; no validation required here
   }
 
   // Graph node config

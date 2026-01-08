@@ -1,6 +1,5 @@
 import { BigInt, Bytes, ethereum, log, BigDecimal } from "@graphprotocol/graph-ts"
 import { getChainId } from "./utils/chain"
-import { bytes32ToString } from "./utils/ipfs"
 import {
   ValidationRequest,
   ValidationResponse
@@ -37,7 +36,7 @@ export function handleValidationRequest(event: ValidationRequest): void {
   let validation = new Validation(requestHash.toHexString())
   validation.agent = agentEntityId
   validation.validatorAddress = validatorAddress
-  validation.requestUri = event.params.requestUri
+  validation.requestUri = event.params.requestURI
   validation.requestHash = requestHash
   validation.response = 0 // Pending
   validation.responseUri = ""
@@ -105,9 +104,9 @@ export function handleValidationResponse(event: ValidationResponse): void {
   
   // Update validation
   validation.response = response
-  validation.responseUri = event.params.responseUri
+  validation.responseUri = event.params.responseURI
   validation.responseHash = event.params.responseHash
-  validation.tag = bytes32ToString(event.params.tag)
+  validation.tag = event.params.tag
   validation.status = "COMPLETED"
   validation.updatedAt = event.block.timestamp
   validation.save()
@@ -123,25 +122,18 @@ export function handleValidationResponse(event: ValidationResponse): void {
   // Update agent stats
   updateAgentValidationStats(agentEntityId, false, true, response, event.block.timestamp)
   
-  // Update protocol stats
-  updateProtocolStats(BigInt.fromI32(chainId), agentForResponse, event.block.timestamp)
-  
-  // Update global stats - validation
-  let globalStats = GlobalStats.load("global")
-  if (globalStats == null) {
-    globalStats = new GlobalStats("global")
-    globalStats.totalAgents = BigInt.fromI32(0)
-    globalStats.totalFeedback = BigInt.fromI32(0)
-    globalStats.totalValidations = BigInt.fromI32(0)
-    globalStats.totalProtocols = BigInt.fromI32(0)
-    globalStats.agents = []
-    globalStats.tags = []
-    globalStats.updatedAt = BigInt.fromI32(0)
+  // Do NOT increment protocol/global totals here; totals are counted on ValidationRequest.
+  // We only touch updatedAt for observability.
+  let protocol = Protocol.load(BigInt.fromI32(chainId).toString())
+  if (protocol != null) {
+    protocol.updatedAt = event.block.timestamp
+    protocol.save()
   }
-  
-  globalStats.totalValidations = globalStats.totalValidations.plus(BigInt.fromI32(1))
-  globalStats.updatedAt = event.block.timestamp
-  globalStats.save()
+  let globalStats = GlobalStats.load("global")
+  if (globalStats != null) {
+    globalStats.updatedAt = event.block.timestamp
+    globalStats.save()
+  }
   
   log.info("Validation response for agent {}: score {}", [agentEntityId, response.toString()])
 }

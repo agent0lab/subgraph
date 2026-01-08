@@ -1,6 +1,6 @@
 import { BigInt, Bytes, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
 import { getChainId } from "./utils/chain"
-import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction, bytes32ToString } from "./utils/ipfs"
+import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction } from "./utils/ipfs"
 import {
   NewFeedback,
   FeedbackRevoked,
@@ -25,6 +25,7 @@ import { getContractAddresses, getChainName, isSupportedChain } from "./contract
 export function handleNewFeedback(event: NewFeedback): void {
   let agentId = event.params.agentId
   let clientAddress = event.params.clientAddress
+  let feedbackIndex = event.params.feedbackIndex
   let chainId = getChainId()
   let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
   
@@ -36,14 +37,19 @@ export function handleNewFeedback(event: NewFeedback): void {
   }
   
   // Create feedback entity
-  let feedbackId = `${agentEntityId}:${clientAddress.toHexString()}:${agent.totalFeedback.plus(BigInt.fromI32(1)).toString()}`
+  let feedbackId = `${agentEntityId}:${clientAddress.toHexString()}:${feedbackIndex.toString()}`
   let feedback = new Feedback(feedbackId)
   feedback.agent = agentEntityId
   feedback.clientAddress = clientAddress
+  feedback.feedbackIndex = feedbackIndex
   feedback.score = event.params.score
-  feedback.tag1 = bytes32ToString(event.params.tag1)
-  feedback.tag2 = bytes32ToString(event.params.tag2)
-  feedback.feedbackUri = event.params.feedbackUri
+  // NOTE: tag1 is `indexed string` in the ABI; indexed strings are only available as a topic hash.
+  // The Graph exposes it as `Bytes`, so we store the hex hash.
+  let tag1Hash = event.params.tag1.toHexString()
+  feedback.tag1 = tag1Hash
+  feedback.tag2 = event.params.tag2
+  feedback.endpoint = event.params.endpoint
+  feedback.feedbackURI = event.params.feedbackURI
   feedback.feedbackURIType = "unknown" // Will be updated by parseFeedbackFile
   feedback.feedbackHash = event.params.feedbackHash
   feedback.isRevoked = false
@@ -51,19 +57,19 @@ export function handleNewFeedback(event: NewFeedback): void {
   feedback.revokedAt = null
   
   // Parse off-chain data from URI if available
-  if (event.params.feedbackUri.length > 0) {
+  if (event.params.feedbackURI.length > 0) {
     // The feedback file parsing will be handled by the IPFS file data source
     // when the file is loaded from IPFS
     // Determine URI type using centralized utility
-    feedback.feedbackURIType = determineUriType(event.params.feedbackUri)
+    feedback.feedbackURIType = determineUriType(event.params.feedbackURI)
   }
   
   feedback.save()
   
   // Trigger IPFS file data source if URI is IPFS
-  if (event.params.feedbackUri.length > 0 && isIpfsUri(event.params.feedbackUri)) {
-    let ipfsHash = extractIpfsHash(event.params.feedbackUri)
-    logIpfsExtraction("feedback", event.params.feedbackUri, ipfsHash)
+  if (event.params.feedbackURI.length > 0 && isIpfsUri(event.params.feedbackURI)) {
+    let ipfsHash = extractIpfsHash(event.params.feedbackURI)
+    logIpfsExtraction("feedback", event.params.feedbackURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
       let fileId = `${txHash}:${ipfsHash}`
@@ -90,7 +96,7 @@ export function handleNewFeedback(event: NewFeedback): void {
   // Tag statistics removed for scalability
   
   // Update protocol stats
-  updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp, event.params.tag1, event.params.tag2)
+  updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp, tag1Hash, event.params.tag2)
   
   // Update global stats - feedback
   let globalStats = GlobalStats.load("global")
@@ -111,19 +117,12 @@ export function handleNewFeedback(event: NewFeedback): void {
   let currentGlobalTags = globalStats.tags
   
   // Process tag1
-  if (event.params.tag1.toHexString() != "0x0000000000000000000000000000000000000000000000000000000000000000") {
-    let tag1String = event.params.tag1.toHexString()
-    if (!currentGlobalTags.includes(tag1String)) {
-      currentGlobalTags.push(tag1String)
-    }
+  if (tag1Hash.length > 0 && !currentGlobalTags.includes(tag1Hash)) {
+    currentGlobalTags.push(tag1Hash)
   }
-  
   // Process tag2
-  if (event.params.tag2.toHexString() != "0x0000000000000000000000000000000000000000000000000000000000000000") {
-    let tag2String = event.params.tag2.toHexString()
-    if (!currentGlobalTags.includes(tag2String)) {
-      currentGlobalTags.push(tag2String)
-    }
+  if (event.params.tag2.length > 0 && !currentGlobalTags.includes(event.params.tag2)) {
+    currentGlobalTags.push(event.params.tag2)
   }
   
   globalStats.tags = currentGlobalTags
@@ -183,11 +182,11 @@ export function handleResponseAppended(event: ResponseAppended): void {
   }
   
   // Create response entity
-  let responseId = `${feedbackId}:${event.block.timestamp.toString()}`
+  let responseId = `${feedbackId}:${event.transaction.hash.toHexString()}:${event.logIndex.toString()}`
   let response = new FeedbackResponse(responseId)
   response.feedback = feedbackId
   response.responder = responder
-  response.responseUri = event.params.responseUri
+  response.responseUri = event.params.responseURI
   response.responseHash = event.params.responseHash
   response.createdAt = event.block.timestamp
   response.save()
@@ -277,7 +276,7 @@ function updateAgentStatsAfterRevocation(agent: Agent, score: i32, timestamp: Bi
 // Reputation score calculation removed
 
 
-function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, tag1: Bytes, tag2: Bytes): void {
+function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, tag1: string, tag2: string): void {
   // Check if chain is supported
   if (!isSupportedChain(chainId)) {
     log.warning("Unsupported chain: {}", [chainId.toString()])
@@ -313,19 +312,12 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, t
   let currentTags = protocol.tags
   
   // Process tag1 if not empty
-  if (tag1.toHexString() != "0x0000000000000000000000000000000000000000000000000000000000000000") {
-    let tag1String = tag1.toHexString()
-    if (!currentTags.includes(tag1String)) {
-      currentTags.push(tag1String)
-    }
+  if (tag1.length > 0 && !currentTags.includes(tag1)) {
+    currentTags.push(tag1)
   }
-  
   // Process tag2 if not empty
-  if (tag2.toHexString() != "0x0000000000000000000000000000000000000000000000000000000000000000") {
-    let tag2String = tag2.toHexString()
-    if (!currentTags.includes(tag2String)) {
-      currentTags.push(tag2String)
-    }
+  if (tag2.length > 0 && !currentTags.includes(tag2)) {
+    currentTags.push(tag2)
   }
   
   protocol.tags = currentTags

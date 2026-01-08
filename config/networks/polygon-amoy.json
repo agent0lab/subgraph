@@ -2,18 +2,9 @@
   "network": "polygon-amoy",
   "chainId": "80002",
   "displayName": "Polygon Amoy",
-  "identityRegistry": {
-    "address": "0x8004ad19E14B9e0654f73353e8a0B600D46C2898",
-    "startBlock": 28346843
-  },
-  "reputationRegistry": {
-    "address": "0x8004B12F4C2B42d00c46479e859C92e39044C930",
-    "startBlock": 28346843
-  },
-  "validationRegistry": {
-    "address": "0x8004C11C213ff7BaD36489bcBDF947ba5eee289B",
-    "startBlock": 28346843
-  },
+  "identityRegistry": {},
+  "reputationRegistry": {},
+  "validationRegistry": {},
   "graphNode": {
     "network": "polygon-amoy"
   }
