@@ -137,8 +137,14 @@ export function handleMetadataSet(event: MetadataSet): void {
   // Special-case agentWallet: decode metadataValue bytes into a 20-byte address and store on Agent
   if (event.params.metadataKey == "agentWallet") {
     let v = event.params.metadataValue
+    // Empty bytes means cleared/unset
+    if (v.length == 0) {
+      agent.agentWallet = null
+      agent.updatedAt = event.block.timestamp
+      agent.save()
     // Accept 20-byte raw address, or 32-byte ABI-encoded address (take last 20 bytes).
-    if (v.length == 20) {
+    // Accept 20-byte raw address, or 32-byte ABI-encoded address (take last 20 bytes).
+    } else if (v.length == 20) {
       agent.agentWallet = v
       agent.updatedAt = event.block.timestamp
       agent.save()

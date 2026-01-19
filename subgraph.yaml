@@ -7,6 +7,8 @@ dataSources:
     name: IdentityRegistry
     network: sepolia
     source:
+      address: "0x8004A818BFB912233c491871b3d84c89A494BD9e"
+      startBlock: 9980000
       abi: IdentityRegistry
     mapping:
       kind: ethereum/events
@@ -19,7 +21,7 @@ dataSources:
         - GlobalStats
       abis:
         - name: IdentityRegistry
-          file: ./abis/IdentityRegistry_Jan112026.json
+          file: ./abis/IdentityRegistry_Jan192026.json
       eventHandlers:
         - event: Registered(indexed uint256,string,indexed address)
           handler: handleAgentRegistered
@@ -40,6 +42,8 @@ dataSources:
     name: ReputationRegistry
     network: sepolia
     source:
+      address: "0x8004B663056A597Dffe9eCcC1965A193B7388713"
+      startBlock: 10080118
       abi: ReputationRegistry
     mapping:
       kind: ethereum/events
@@ -53,9 +57,9 @@ dataSources:
         - GlobalStats
       abis:
         - name: ReputationRegistry
-          file: ./abis/ReputationRegistry_Jan112026.json
+          file: ./abis/ReputationRegistry_Jan192026.json
       eventHandlers:
-        - event: NewFeedback(indexed uint256,indexed address,uint64,uint8,indexed string,string,string,string,string,bytes32)
+        - event: NewFeedback(indexed uint256,indexed address,uint64,int256,uint8,indexed string,string,string,string,string,bytes32)
           handler: handleNewFeedback
         - event: FeedbackRevoked(indexed uint256,indexed address,indexed uint64)
           handler: handleFeedbackRevoked
@@ -106,7 +110,7 @@ templates:
         - Agent
       abis:
         - name: IdentityRegistry
-          file: ./abis/IdentityRegistry_Jan112026.json
+          file: ./abis/IdentityRegistry_Jan192026.json
 
   - kind: file/ipfs
     name: FeedbackFile
@@ -121,4 +125,4 @@ templates:
         - Feedback
       abis:
         - name: ReputationRegistry
-          file: ./abis/ReputationRegistry_Jan112026.json
+          file: ./abis/ReputationRegistry_Jan192026.json

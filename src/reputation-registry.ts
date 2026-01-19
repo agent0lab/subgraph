@@ -22,6 +22,23 @@ import { getContractAddresses, getChainName, isSupportedChain } from "./contract
 // EVENT HANDLERS
 // =============================================================================
 
+function pow10BigDecimal(decimals: i32): BigDecimal {
+  let result = BigDecimal.fromString("1")
+  let ten = BigDecimal.fromString("10")
+  for (let i = 0; i < decimals; i++) {
+    result = result.times(ten)
+  }
+  return result
+}
+
+function computeFeedbackValue(rawValue: BigInt, valueDecimals: i32): BigDecimal {
+  // Store the computed value as BigDecimal: rawValue / 10^valueDecimals
+  // rawValue may be negative (int256).
+  let v = BigDecimal.fromString(rawValue.toString())
+  if (valueDecimals <= 0) return v
+  return v.div(pow10BigDecimal(valueDecimals))
+}
+
 export function handleNewFeedback(event: NewFeedback): void {
   let agentId = event.params.agentId
   let clientAddress = event.params.clientAddress
@@ -42,7 +59,8 @@ export function handleNewFeedback(event: NewFeedback): void {
   feedback.agent = agentEntityId
   feedback.clientAddress = clientAddress
   feedback.feedbackIndex = feedbackIndex
-  feedback.score = event.params.score
+  let feedbackValue = computeFeedbackValue(event.params.value, event.params.valueDecimals as i32)
+  feedback.value = feedbackValue
   // Jan 2026 ABI change: tag1 is now a non-indexed string, so it's available as human-readable data.
   feedback.tag1 = event.params.tag1
   feedback.tag2 = event.params.tag2
@@ -89,7 +107,7 @@ export function handleNewFeedback(event: NewFeedback): void {
   }
   
   // Update agent statistics
-  updateAgentStats(agent, event.params.score, event.block.timestamp)
+  updateAgentStats(agent, feedbackValue, event.block.timestamp)
   
   // Tag statistics removed for scalability
   
@@ -127,9 +145,9 @@ export function handleNewFeedback(event: NewFeedback): void {
   globalStats.updatedAt = event.block.timestamp
   globalStats.save()
   
-  log.info("New feedback for agent {}: score {} from {}", [
+  log.info("New feedback for agent {}: value {} from {}", [
     agentEntityId,
-    event.params.score.toString(),
+    feedbackValue.toString(),
     clientAddress.toHexString()
   ])
 }
@@ -153,7 +171,7 @@ export function handleFeedbackRevoked(event: FeedbackRevoked): void {
     // Update agent stats to reflect revocation
     let agent = Agent.load(agentEntityId)
     if (agent != null) {
-      updateAgentStatsAfterRevocation(agent, feedback.score, event.block.timestamp)
+      updateAgentStatsAfterRevocation(agent, feedback.value, event.block.timestamp)
     }
     
     log.info("Feedback revoked for agent {}: {}", [agentEntityId, feedbackId])
@@ -196,7 +214,7 @@ export function handleResponseAppended(event: ResponseAppended): void {
 // HELPER FUNCTIONS
 // =============================================================================
 
-function updateAgentStats(agent: Agent, score: i32, timestamp: BigInt): void {
+function updateAgentStats(agent: Agent, value: BigDecimal, timestamp: BigInt): void {
   // Update total feedback count
   agent.totalFeedback = agent.totalFeedback.plus(BigInt.fromI32(1))
   
@@ -213,8 +231,7 @@ function updateAgentStats(agent: Agent, score: i32, timestamp: BigInt): void {
     stats = new AgentStats(statsId)
     stats.agent = agent.id
     stats.totalFeedback = BigInt.fromI32(0)
-    stats.averageScore = BigDecimal.fromString("0")
-    stats.scoreDistribution = [0, 0, 0, 0, 0] // [0-20, 21-40, 41-60, 61-80, 81-100]
+    stats.averageFeedbackValue = BigDecimal.fromString("0")
     stats.totalValidations = BigInt.fromI32(0)
     stats.completedValidations = BigInt.fromI32(0)
     stats.averageValidationScore = BigDecimal.fromString("0")
@@ -224,36 +241,25 @@ function updateAgentStats(agent: Agent, score: i32, timestamp: BigInt): void {
   // Update feedback stats
   stats.totalFeedback = stats.totalFeedback.plus(BigInt.fromI32(1))
   
-  // Update score distribution
-  let distribution = stats.scoreDistribution
-  if (score <= 20) {
-    distribution[0] = distribution[0] + 1
-  } else if (score <= 40) {
-    distribution[1] = distribution[1] + 1
-  } else if (score <= 60) {
-    distribution[2] = distribution[2] + 1
-  } else if (score <= 80) {
-    distribution[3] = distribution[3] + 1
-  } else {
-    distribution[4] = distribution[4] + 1
-  }
-  stats.scoreDistribution = distribution
-  
-  // Update average score
-  let totalScore = stats.averageScore.times(BigDecimal.fromString(stats.totalFeedback.minus(BigInt.fromI32(1)).toString()))
-  let newTotalScore = totalScore.plus(BigDecimal.fromString(score.toString()))
-  stats.averageScore = newTotalScore.div(BigDecimal.fromString(stats.totalFeedback.toString()))
+  // Update average feedback value
+  let n = stats.totalFeedback
+  let nMinus1 = n.minus(BigInt.fromI32(1))
+  let total = stats.averageFeedbackValue.times(BigDecimal.fromString(nMinus1.toString()))
+  let newTotal = total.plus(value)
+  stats.averageFeedbackValue = newTotal.div(BigDecimal.fromString(n.toString()))
   
   stats.lastActivity = timestamp
   stats.updatedAt = timestamp
   stats.save()
 }
 
-function updateAgentStatsAfterRevocation(agent: Agent, score: i32, timestamp: BigInt): void {
+function updateAgentStatsAfterRevocation(agent: Agent, revokedValue: BigDecimal, timestamp: BigInt): void {
   // Update total feedback count
-  agent.totalFeedback = agent.totalFeedback.minus(BigInt.fromI32(1))
+  if (agent.totalFeedback.gt(BigInt.fromI32(0))) {
+    agent.totalFeedback = agent.totalFeedback.minus(BigInt.fromI32(1))
+  }
   
-  // Note: Agent no longer tracks averageScore - only AgentStats does
+  // Note: Agent does not track averages - only AgentStats does
   
   agent.updatedAt = timestamp
   agent.save()
@@ -261,7 +267,19 @@ function updateAgentStatsAfterRevocation(agent: Agent, score: i32, timestamp: Bi
   // Update agent stats
   let stats = AgentStats.load(agent.id)
   if (stats != null) {
-    stats.totalFeedback = stats.totalFeedback.minus(BigInt.fromI32(1))
+    let nOld = stats.totalFeedback
+    if (nOld.gt(BigInt.fromI32(0))) {
+      let totalOld = stats.averageFeedbackValue.times(BigDecimal.fromString(nOld.toString()))
+      let nNew = nOld.minus(BigInt.fromI32(1))
+      stats.totalFeedback = nNew
+
+      if (nNew.equals(BigInt.fromI32(0))) {
+        stats.averageFeedbackValue = BigDecimal.fromString("0")
+      } else {
+        let totalNew = totalOld.minus(revokedValue)
+        stats.averageFeedbackValue = totalNew.div(BigDecimal.fromString(nNew.toString()))
+      }
+    }
     stats.updatedAt = timestamp
     stats.save()
   }

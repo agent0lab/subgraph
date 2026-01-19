@@ -47,7 +47,7 @@ type Feedback @entity(immutable: false) {
   feedbackIndex: BigInt!
   
   # On-chain feedback data
-  score: Int!
+  value: BigDecimal!
   tag1: String
   tag2: String
   endpoint: String
@@ -126,8 +126,7 @@ type AgentStats @entity(immutable: false) {
   
   # Feedback statistics
   totalFeedback: BigInt!
-  averageScore: BigDecimal!
-  scoreDistribution: [Int!]! # [count_0-20, count_21-40, count_41-60, count_61-80, count_81-100]
+  averageFeedbackValue: BigDecimal!
   
   # Validation statistics
   totalValidations: BigInt!

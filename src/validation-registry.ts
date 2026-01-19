@@ -149,8 +149,7 @@ function updateAgentValidationStats(agentId: string, isRequest: boolean, isRespo
     stats = new AgentStats(agentId)
     stats.agent = agentId
     stats.totalFeedback = BigInt.fromI32(0)
-    stats.averageScore = BigDecimal.fromString("0")
-    stats.scoreDistribution = [0, 0, 0, 0, 0]
+    stats.averageFeedbackValue = BigDecimal.fromString("0")
     stats.totalValidations = BigInt.fromI32(0)
     stats.completedValidations = BigInt.fromI32(0)
     stats.averageValidationScore = BigDecimal.fromString("0")
