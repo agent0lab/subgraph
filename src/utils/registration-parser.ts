@@ -143,7 +143,7 @@ export function populateRegistrationFromJsonBytes(metadata: AgentRegistrationFil
   // ERC-8004 uses x402Support (camelCase). Keep fallback to x402support.
   let x402Support = obj.get("x402Support")
   if (x402Support == null || x402Support.isNull()) x402Support = obj.get("x402support")
-  if (x402Support && !x402Support.isNull()) metadata.x402support = x402Support.toBool()
+  if (x402Support && !x402Support.isNull()) metadata.x402Support = x402Support.toBool()
 
   let supportedTrusts = obj.get("supportedTrusts")
   if (supportedTrusts == null || supportedTrusts.isNull()) supportedTrusts = obj.get("supportedTrust")

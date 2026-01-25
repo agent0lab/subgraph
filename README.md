@@ -271,7 +271,7 @@ type AgentRegistrationFile @entity(immutable: true) {
   description: String        # Agent description
   image: String             # Profile image URL
   active: Boolean           # Is agent active
-  x402support: Boolean      # Supports ERC-6551 payments
+  x402Support: Boolean      # Supports x402 payments
   supportedTrusts: [String!]!  # Trust models: "reputation", "cryptoeconomic", "tee-attestation"
   mcpEndpoint: String       # Model Context Protocol endpoint
   mcpVersion: String
@@ -383,7 +383,7 @@ query GetCompleteAgentDetails($agentId: ID!) {
       description
       image
       active
-      x402support
+      x402Support
       supportedTrusts
       mcpEndpoint
       mcpVersion

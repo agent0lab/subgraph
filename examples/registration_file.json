@@ -75,5 +75,5 @@
     "tee-attestation"
   ],
   "active": true,
-  "x402support": true
+  "x402Support": true
 }

@@ -26,7 +26,7 @@ query GetCompleteAgentDetails($agentId: ID!) {
       description
       image
       active
-      x402support
+      x402Support
       supportedTrusts
       
       # MCP Configuration
