@@ -34,6 +34,15 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
       Bytes.fromHexString("0x0000000000000000000000000000000000000000")
     )
   }
+  // Polygon Mainnet (137)
+  else if (chainId.equals(BigInt.fromI32(137))) {
+    return new ContractAddresses(
+      Bytes.fromHexString("0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"),
+      Bytes.fromHexString("0x8004BAa17C55a88189AE136b182e5fdA19dE9b63"),
+      // Validation registry not configured / indexing paused
+      Bytes.fromHexString("0x0000000000000000000000000000000000000000")
+    )
+  }
   // Ethereum Sepolia (11155111)
   else if (chainId.equals(BigInt.fromI32(11155111))) {
     return new ContractAddresses(
@@ -105,6 +114,7 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
 
 export function getChainName(chainId: BigInt): string {
   if (chainId.equals(BigInt.fromI32(1))) return "Ethereum Mainnet"
+  if (chainId.equals(BigInt.fromI32(137))) return "Polygon Mainnet"
   if (chainId.equals(BigInt.fromI32(11155111))) return "Ethereum Sepolia"
   if (chainId.equals(BigInt.fromI32(84532))) return "Base Sepolia"
   if (chainId.equals(BigInt.fromI32(59141))) return "Linea Sepolia"
@@ -141,6 +151,7 @@ export function isSupportedChain(chainId: BigInt): boolean {
 export function getSupportedChains(): BigInt[] {
   return [
     BigInt.fromI32(1),             // Ethereum Mainnet
+    BigInt.fromI32(137),           // Polygon Mainnet
     BigInt.fromI32(11155111),      // Ethereum Sepolia
     BigInt.fromI32(84532),         // Base Sepolia
     BigInt.fromI32(59141),         // Linea Sepolia

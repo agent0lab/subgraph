@@ -30,7 +30,7 @@ export function getChainId(): i32 {
     return 8453
   } else if (network == "linea") {
     return 59144
-  } else if (network == "polygon") {
+  } else if (network == "polygon" || network == "matic") {
     return 137
   } else if (network == "arbitrum-one") {
     return 42161

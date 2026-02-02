@@ -59,6 +59,17 @@
           "subgraph": "1.0.0"
         }
       },
+      "erc-8004-polygon-mainnet": {
+        "network": "polygon-mainnet",
+        "displayName": "Polygon Mainnet",
+        "chainId": "137",
+        "status": "prod",
+        "configFile": "config/networks/polygon-mainnet.json",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      },
       "erc-8004-hedera-testnet": {
         "network": "hedera-testnet",
         "displayName": "Hedera Testnet",
