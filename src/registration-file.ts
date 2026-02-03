@@ -25,8 +25,12 @@ export function parseRegistrationFile(content: Bytes): void {
   metadata.a2aSkills = []
   metadata.oasfSkills = []
   metadata.oasfDomains = []
+  metadata.hasOASF = false
   // New centralized parser (handles x402Support, new endpoints, endpointsRawJson)
   populateRegistrationFromJsonBytes(metadata, content)
+
+  // Derived field for exact filtering: OASF skills OR domains present.
+  metadata.hasOASF = (metadata.oasfSkills.length > 0) || (metadata.oasfDomains.length > 0)
   
   metadata.save()
   

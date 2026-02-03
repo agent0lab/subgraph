@@ -112,6 +112,8 @@ export function populateRegistrationFromJsonBytes(metadata: AgentRegistrationFil
   if (metadata.a2aSkills == null) metadata.a2aSkills = []
   if (metadata.oasfSkills == null) metadata.oasfSkills = []
   if (metadata.oasfDomains == null) metadata.oasfDomains = []
+  // Default derived flag (computed again at end).
+  metadata.hasOASF = false
 
   let result = json.try_fromBytes(content)
   if (result.isError) {
@@ -219,6 +221,9 @@ export function populateRegistrationFromJsonBytes(metadata: AgentRegistrationFil
       }
     }
   }
+
+  // Derived field for exact filtering: OASF skills OR domains present.
+  metadata.hasOASF = (metadata.oasfSkills.length > 0) || (metadata.oasfDomains.length > 0)
 }
 
 

@@ -218,6 +218,8 @@ type AgentRegistrationFile @entity(immutable: true) {
   oasfVersion: String
   oasfSkills: [String!]!
   oasfDomains: [String!]!
+  # Derived convenience flag for exact filtering: true if oasfSkills or oasfDomains is non-empty.
+  hasOASF: Boolean!
   emailEndpoint: String
   
   # External identifiers
