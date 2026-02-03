@@ -10,6 +10,10 @@ export function getChainId(): i32 {
   // ERC-8004 Supported Testnets
   if (network == "sepolia") {
     return 11155111  // Ethereum Sepolia
+  } else if (network == "chapel" || network == "bsc-testnet") {
+    return 97 // BSC Testnet
+  } else if (network == "monad-testnet") {
+    return 10143 // Monad Testnet
   } else if (network == "base-testnet" || network == "base-sepolia") {
     return 84532  // Base Sepolia (base-testnet in Studio)
   } else if (network == "linea-sepolia") {
@@ -38,6 +42,8 @@ export function getChainId(): i32 {
     return 10
   } else if (network == "bsc") {
     return 56
+  } else if (network == "monad") {
+    return 143
   } else if (network == "avalanche") {
     return 43114
   } else {

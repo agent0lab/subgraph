@@ -1,6 +1,6 @@
 # Agent0 SDK Subgraph
 
- A multi-chain subgraph for indexing [ERC-8004](https://eips.ethereum.org/EIP-8004) Trustless Agents protocol data, providing GraphQL APIs for agent discovery, reputation tracking, and validation across 9 networks.
+ A multi-chain subgraph for indexing [ERC-8004](https://eips.ethereum.org/EIP-8004) Trustless Agents protocol data, providing GraphQL APIs for agent discovery, reputation tracking, and validation across multiple networks.
 
 **Bug reports & feedback:** Telegram: [Agent0 channel](https://t.me/agent0kitchen) | Email: team@ag0.xyz
 
@@ -9,9 +9,14 @@
 | Network | Chain ID | Status | Endpoint |
 |---------|----------|--------|----------|
 | **Ethereum Mainnet** | 1 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/FV6RR6y13rsnCxBAicKuQEwDp8ioEGiNaWaZUmvr1F8k) |
-| **Ethereum Sepolia** | 11155111 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT) |
+| **Base Mainnet** | 8453 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb) |
+| **BSC Mainnet** | 56 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/D6aWqowLkWqBgcqmpNKXuNikPkob24ADXCciiP8Hvn1K) |
 | **Polygon Mainnet** | 137 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/9q16PZv1JudvtnCAf44cBoxg82yK9SSsFvrjCY9xnneF) |
-| **Base Sepolia** | 84532 | ⛔️ Contracts not deployed | - |
+| **Monad** | 143 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/4tvLxkczjhSaMiqRrCV1EyheYHyJ7Ad8jub1UUyukBjg) |
+| **Ethereum Sepolia** | 11155111 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT) |
+| **Base Sepolia** | 84532 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u) |
+| **BSC Chapel** | 97 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/BTjind17gmRZ6YhT9peaCM13SvWuqztsmqyfjpntbg3Z) |
+| **Monad Testnet** | 10143 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/8iiMH9sj471jbp7AwUuuyBXvPJqCEsobuHBeUEKQSxhU) |
 | **Polygon Amoy** | 80002 | ⛔️ Contracts not deployed | - |
 | **Linea Sepolia** | 59141 | ⛔️ Contracts not deployed | - |
 | **Hedera Testnet** | 296 | ⛔️ Contracts not deployed | - |

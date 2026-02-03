@@ -1,0 +1,18 @@
+{
+  "network": "monad-mainnet",
+  "chainId": "143",
+  "displayName": "Monad Mainnet",
+  "identityRegistry": {
+    "address": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+    "startBlock": 52952898
+  },
+  "reputationRegistry": {
+    "address": "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63",
+    "startBlock": 52952903
+  },
+  "validationRegistry": {},
+  "graphNode": {
+    "network": "monad"
+  }
+}
+
