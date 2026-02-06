@@ -67,7 +67,7 @@ type Feedback @entity(immutable: false) {
   responses: [FeedbackResponse!]! @derivedFrom(field: "feedback")
 }
 
-type FeedbackResponse @entity(immutable: false) {
+type FeedbackResponse @entity(immutable: true) {
   id: ID! # Format: "feedbackId:responseIndex"
   feedback: Feedback!
   responder: Bytes!
@@ -98,7 +98,7 @@ type Validation @entity(immutable: false) {
   updatedAt: BigInt!
 }
 
-type AgentMetadata @entity(immutable: false) {
+type AgentMetadata @entity(immutable: true) {
   id: ID! # Format: "chainId:agentId:key"
   agent: Agent!
   key: String!
