@@ -21,6 +21,7 @@ import {
   GlobalStats
 } from "../generated/schema"
 import { getContractAddresses, getChainName, isSupportedChain } from "./contract-addresses"
+import { BIGINT_ZERO, BIGINT_ONE, ZERO_ADDRESS } from "./constants"
 
 // =============================================================================
 // EVENT HANDLERS
@@ -39,7 +40,7 @@ export function handleAgentRegistered(event: Registered): void {
     agent.agentId = agentId
     agent.createdAt = event.block.timestamp
     agent.operators = []
-    agent.totalFeedback = BigInt.fromI32(0)
+    agent.totalFeedback = BIGINT_ZERO
     agent.lastActivity = event.block.timestamp
     agent.registrationFile = null
   }
@@ -58,15 +59,15 @@ export function handleAgentRegistered(event: Registered): void {
   let globalStats = GlobalStats.load("global")
   if (globalStats == null) {
     globalStats = new GlobalStats("global")
-    globalStats.totalAgents = BigInt.fromI32(0)
-    globalStats.totalFeedback = BigInt.fromI32(0)
-    globalStats.totalValidations = BigInt.fromI32(0)
-    globalStats.totalProtocols = BigInt.fromI32(0)
+    globalStats.totalAgents = BIGINT_ZERO
+    globalStats.totalFeedback = BIGINT_ZERO
+    globalStats.totalValidations = BIGINT_ZERO
+    globalStats.totalProtocols = BIGINT_ZERO
     globalStats.agents = []
     globalStats.tags = []
   }
   
-  globalStats.totalAgents = globalStats.totalAgents.plus(BigInt.fromI32(1))
+  globalStats.totalAgents = globalStats.totalAgents.plus(BIGINT_ONE)
   
   let currentGlobalAgents = globalStats.agents
   currentGlobalAgents.push(agent.id)
@@ -245,7 +246,7 @@ export function handleUriUpdated(event: URIUpdated): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-  let zeroAddress = Address.fromString("0x0000000000000000000000000000000000000000")
+  let zeroAddress = Address.fromString(ZERO_ADDRESS)
   if (event.params.from.equals(zeroAddress)) {
     return
   }
@@ -289,7 +290,7 @@ export function handleApproval(event: Approval): void {
   let operators = agent.operators
   let approved = event.params.approved
   
-  if (approved.toHexString() != "0x0000000000000000000000000000000000000000") {
+  if (approved.toHexString() != ZERO_ADDRESS) {
     let found = false
     for (let i = 0; i < operators.length; i++) {
       if (operators[i].toHexString() == approved.toHexString()) {
@@ -353,15 +354,15 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt): 
     protocol.reputationRegistry = addresses.reputationRegistry
     protocol.validationRegistry = addresses.validationRegistry
     
-    protocol.totalAgents = BigInt.fromI32(0)
-    protocol.totalFeedback = BigInt.fromI32(0)
-    protocol.totalValidations = BigInt.fromI32(0)
+    protocol.totalAgents = BIGINT_ZERO
+    protocol.totalFeedback = BIGINT_ZERO
+    protocol.totalValidations = BIGINT_ZERO
     protocol.agents = []
     protocol.tags = []
     isNewProtocol = true
   }
   
-  protocol.totalAgents = protocol.totalAgents.plus(BigInt.fromI32(1))
+  protocol.totalAgents = protocol.totalAgents.plus(BIGINT_ONE)
   
   let currentAgents = protocol.agents
   currentAgents.push(agent.id)
@@ -377,14 +378,14 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt): 
     let globalStats = GlobalStats.load("global")
     if (globalStats == null) {
       globalStats = new GlobalStats("global")
-      globalStats.totalAgents = BigInt.fromI32(0)
-      globalStats.totalFeedback = BigInt.fromI32(0)
-      globalStats.totalValidations = BigInt.fromI32(0)
-      globalStats.totalProtocols = BigInt.fromI32(0)
+      globalStats.totalAgents = BIGINT_ZERO
+      globalStats.totalFeedback = BIGINT_ZERO
+      globalStats.totalValidations = BIGINT_ZERO
+      globalStats.totalProtocols = BIGINT_ZERO
       globalStats.agents = []
       globalStats.tags = []
     }
-    globalStats.totalProtocols = globalStats.totalProtocols.plus(BigInt.fromI32(1))
+    globalStats.totalProtocols = globalStats.totalProtocols.plus(BIGINT_ONE)
     globalStats.updatedAt = timestamp
     globalStats.save()
   }

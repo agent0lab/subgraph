@@ -1,4 +1,5 @@
 import { BigInt, Bytes, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
+import { BIGINT_ZERO, BIGINT_ONE } from "./constants"
 import { getChainId } from "./utils/chain"
 import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction } from "./utils/ipfs"
 import {
@@ -118,16 +119,16 @@ export function handleNewFeedback(event: NewFeedback): void {
   let globalStats = GlobalStats.load("global")
   if (globalStats == null) {
     globalStats = new GlobalStats("global")
-    globalStats.totalAgents = BigInt.fromI32(0)
-    globalStats.totalFeedback = BigInt.fromI32(0)
-    globalStats.totalValidations = BigInt.fromI32(0)
-    globalStats.totalProtocols = BigInt.fromI32(0)
+    globalStats.totalAgents = BIGINT_ZERO
+    globalStats.totalFeedback = BIGINT_ZERO
+    globalStats.totalValidations = BIGINT_ZERO
+    globalStats.totalProtocols = BIGINT_ZERO
     globalStats.agents = []
     globalStats.tags = []
-    globalStats.updatedAt = BigInt.fromI32(0)
+    globalStats.updatedAt = BIGINT_ZERO
   }
   
-  globalStats.totalFeedback = globalStats.totalFeedback.plus(BigInt.fromI32(1))
+  globalStats.totalFeedback = globalStats.totalFeedback.plus(BIGINT_ONE)
   
   // Add tags to global tags array
   let currentGlobalTags = globalStats.tags
@@ -216,7 +217,7 @@ export function handleResponseAppended(event: ResponseAppended): void {
 
 function updateAgentStats(agent: Agent, value: BigDecimal, timestamp: BigInt): void {
   // Update total feedback count
-  agent.totalFeedback = agent.totalFeedback.plus(BigInt.fromI32(1))
+  agent.totalFeedback = agent.totalFeedback.plus(BIGINT_ONE)
   
   // Update last activity
   agent.lastActivity = timestamp
@@ -230,20 +231,20 @@ function updateAgentStats(agent: Agent, value: BigDecimal, timestamp: BigInt): v
   if (stats == null) {
     stats = new AgentStats(statsId)
     stats.agent = agent.id
-    stats.totalFeedback = BigInt.fromI32(0)
+    stats.totalFeedback = BIGINT_ZERO
     stats.averageFeedbackValue = BigDecimal.fromString("0")
-    stats.totalValidations = BigInt.fromI32(0)
-    stats.completedValidations = BigInt.fromI32(0)
+    stats.totalValidations = BIGINT_ZERO
+    stats.completedValidations = BIGINT_ZERO
     stats.averageValidationScore = BigDecimal.fromString("0")
     stats.lastActivity = timestamp
   }
   
   // Update feedback stats
-  stats.totalFeedback = stats.totalFeedback.plus(BigInt.fromI32(1))
+  stats.totalFeedback = stats.totalFeedback.plus(BIGINT_ONE)
   
   // Update average feedback value
   let n = stats.totalFeedback
-  let nMinus1 = n.minus(BigInt.fromI32(1))
+  let nMinus1 = n.minus(BIGINT_ONE)
   let total = stats.averageFeedbackValue.times(BigDecimal.fromString(nMinus1.toString()))
   let newTotal = total.plus(value)
   stats.averageFeedbackValue = newTotal.div(BigDecimal.fromString(n.toString()))
@@ -255,8 +256,8 @@ function updateAgentStats(agent: Agent, value: BigDecimal, timestamp: BigInt): v
 
 function updateAgentStatsAfterRevocation(agent: Agent, revokedValue: BigDecimal, timestamp: BigInt): void {
   // Update total feedback count
-  if (agent.totalFeedback.gt(BigInt.fromI32(0))) {
-    agent.totalFeedback = agent.totalFeedback.minus(BigInt.fromI32(1))
+  if (agent.totalFeedback.gt(BIGINT_ZERO)) {
+    agent.totalFeedback = agent.totalFeedback.minus(BIGINT_ONE)
   }
   
   // Note: Agent does not track averages - only AgentStats does
@@ -268,12 +269,12 @@ function updateAgentStatsAfterRevocation(agent: Agent, revokedValue: BigDecimal,
   let stats = AgentStats.load(agent.id)
   if (stats != null) {
     let nOld = stats.totalFeedback
-    if (nOld.gt(BigInt.fromI32(0))) {
+    if (nOld.gt(BIGINT_ZERO)) {
       let totalOld = stats.averageFeedbackValue.times(BigDecimal.fromString(nOld.toString()))
-      let nNew = nOld.minus(BigInt.fromI32(1))
+      let nNew = nOld.minus(BIGINT_ONE)
       stats.totalFeedback = nNew
 
-      if (nNew.equals(BigInt.fromI32(0))) {
+      if (nNew.equals(BIGINT_ZERO)) {
         stats.averageFeedbackValue = BigDecimal.fromString("0")
       } else {
         let totalNew = totalOld.minus(revokedValue)
@@ -314,15 +315,15 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, t
     protocol.validationRegistry = addresses.validationRegistry
     
     // Initialize all fields
-    protocol.totalAgents = BigInt.fromI32(0)
-    protocol.totalFeedback = BigInt.fromI32(0)
-    protocol.totalValidations = BigInt.fromI32(0)
+    protocol.totalAgents = BIGINT_ZERO
+    protocol.totalFeedback = BIGINT_ZERO
+    protocol.totalValidations = BIGINT_ZERO
     protocol.agents = []
     protocol.tags = []
-    protocol.updatedAt = BigInt.fromI32(0)
+    protocol.updatedAt = BIGINT_ZERO
   }
   
-  protocol.totalFeedback = protocol.totalFeedback.plus(BigInt.fromI32(1))
+  protocol.totalFeedback = protocol.totalFeedback.plus(BIGINT_ONE)
   
   // Add tags to protocol tags array
   let currentTags = protocol.tags

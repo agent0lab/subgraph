@@ -1,4 +1,17 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+
+// =============================================================================
+// COMMON CONSTANTS
+// =============================================================================
+
+export const BIGINT_ZERO = BigInt.fromI32(0);
+export const BIGINT_ONE = BigInt.fromI32(1);
+export const BIGINT_HUNDRED = BigInt.fromI32(100);
+
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const ZERO_ADDRESS_BYTES = Bytes.fromHexString(ZERO_ADDRESS);
+export const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
+export const ZERO_BYTES32_BYTES = Bytes.fromHexString(ZERO_BYTES32);
 
 // =============================================================================
 // NETWORK CONSTANTS
@@ -32,7 +45,7 @@ export function getChainIdFromNetwork(network: string): BigInt {
   if (network == Network.SKALE_SEPOLIA) return BigInt.fromString("1351057110");
 
   // Unknown network - return 0
-  return BigInt.fromI32(0);
+  return BIGINT_ZERO;
 }
 
 /**
@@ -49,16 +62,6 @@ export function getNetworkDisplayName(network: string): string {
 
   return `Unknown Network (${network})`;
 }
-
-// =============================================================================
-// COMMON CONSTANTS
-// =============================================================================
-
-export const BIGINT_ZERO = BigInt.fromI32(0);
-export const BIGINT_ONE = BigInt.fromI32(1);
-export const BIGINT_HUNDRED = BigInt.fromI32(100);
-
-export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 // =============================================================================
 // PROTOCOL CONSTANTS

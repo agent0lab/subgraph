@@ -1,4 +1,5 @@
 import { BigInt, Bytes } from "@graphprotocol/graph-ts"
+import { ZERO_ADDRESS_BYTES } from "./constants"
 
 // =============================================================================
 // CONTRACT ADDRESS CONFIGURATION
@@ -31,7 +32,7 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
       Bytes.fromHexString("0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"),
       Bytes.fromHexString("0x8004BAa17C55a88189AE136b182e5fdA19dE9b63"),
       // Validation registry not configured / indexing paused
-      Bytes.fromHexString("0x0000000000000000000000000000000000000000")
+      ZERO_ADDRESS_BYTES
     )
   }
   // Polygon Mainnet (137)
@@ -40,7 +41,7 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
       Bytes.fromHexString("0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"),
       Bytes.fromHexString("0x8004BAa17C55a88189AE136b182e5fdA19dE9b63"),
       // Validation registry not configured / indexing paused
-      Bytes.fromHexString("0x0000000000000000000000000000000000000000")
+      ZERO_ADDRESS_BYTES
     )
   }
   // Ethereum Sepolia (11155111)
@@ -102,9 +103,9 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
 
   // Unsupported chain - return zero addresses
   return new ContractAddresses(
-    Bytes.fromHexString("0x0000000000000000000000000000000000000000"),
-    Bytes.fromHexString("0x0000000000000000000000000000000000000000"),
-    Bytes.fromHexString("0x0000000000000000000000000000000000000000")
+    ZERO_ADDRESS_BYTES,
+    ZERO_ADDRESS_BYTES,
+    ZERO_ADDRESS_BYTES
   )
 }
 
@@ -131,12 +132,10 @@ export function getChainName(chainId: BigInt): string {
 
 export function validateContractAddresses(addresses: ContractAddresses): boolean {
   // Check if addresses are not zero addresses
-  let zeroAddress = Bytes.fromHexString("0x0000000000000000000000000000000000000000")
-  
   // Validation registry is currently optional because validation indexing is paused in the manifest.
   // We still store it in `Protocol`, but do not require it to consider a chain supported.
-  return !addresses.identityRegistry.equals(zeroAddress) &&
-         !addresses.reputationRegistry.equals(zeroAddress)
+  return !addresses.identityRegistry.equals(ZERO_ADDRESS_BYTES) &&
+         !addresses.reputationRegistry.equals(ZERO_ADDRESS_BYTES)
 }
 
 // =============================================================================
