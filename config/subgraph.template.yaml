@@ -3,6 +3,13 @@ schema:
   file: ../../../schema.graphql
 indexerHints:
   prune: auto
+{{#graftEnabled}}
+features:
+  - grafting
+graft:
+  base: {{subgraphId}} # Subgraph ID of base subgraph
+  block: {{graftStartBlock}} # Block number
+{{/graftEnabled}}
 dataSources:
   # Identity Registry
   - kind: ethereum
