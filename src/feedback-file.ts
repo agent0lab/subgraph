@@ -1,5 +1,26 @@
-import { Bytes, dataSource, json, log, BigInt, JSONValueKind } from '@graphprotocol/graph-ts'
+import { Bytes, dataSource, json, log, BigInt, JSONValueKind, TypedMap, JSONValue } from '@graphprotocol/graph-ts'
 import { FeedbackFile, Feedback } from '../generated/schema'
+
+function parseStringArray(obj: TypedMap<string, JSONValue>, key: string): string[] | null {
+  let value = obj.get(key)
+  if (value && !value.isNull() && value.kind == JSONValueKind.ARRAY) {
+    let arr = value.toArray()
+    let out: string[] = []
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].kind == JSONValueKind.STRING) out.push(arr[i].toString())
+    }
+    return out
+  }
+  return null
+}
+
+function getValue(obj: TypedMap<string, JSONValue>, key: string, kind: JSONValueKind): JSONValue | null {
+  let value = obj.get(key)
+  if (value && !value.isNull() && value.kind == kind) {
+    return value
+  }
+  return null
+}
 
 export function parseFeedbackFile(content: Bytes): void {
   let context = dataSource.context()
@@ -46,40 +67,26 @@ export function parseFeedbackFile(content: Bytes): void {
   }
 
   // ERC-8004 envelope fields (spec)
-  let agentRegistry = obj.get('agentRegistry')
-  if (agentRegistry && !agentRegistry.isNull() && agentRegistry.kind == JSONValueKind.STRING) {
-    feedbackFile.agentRegistry = agentRegistry.toString()
-  }
+  let agentRegistry = getValue(obj, 'agentRegistry', JSONValueKind.STRING)
+  if (agentRegistry != null) feedbackFile.agentRegistry = agentRegistry.toString()
 
-  let agentId = obj.get('agentId')
-  if (agentId && !agentId.isNull() && agentId.kind == JSONValueKind.NUMBER) {
-    feedbackFile.agentId = agentId.toBigInt()
-  }
+  let agentId = getValue(obj, 'agentId', JSONValueKind.NUMBER)
+  if (agentId != null) feedbackFile.agentId = agentId.toBigInt()
 
-  let clientAddress = obj.get('clientAddress')
-  if (clientAddress && !clientAddress.isNull() && clientAddress.kind == JSONValueKind.STRING) {
-    feedbackFile.clientAddress = clientAddress.toString()
-  }
+  let clientAddress = getValue(obj, 'clientAddress', JSONValueKind.STRING)
+  if (clientAddress != null) feedbackFile.clientAddress = clientAddress.toString()
 
-  let createdAtIso = obj.get('createdAt')
-  if (createdAtIso && !createdAtIso.isNull() && createdAtIso.kind == JSONValueKind.STRING) {
-    feedbackFile.createdAtIso = createdAtIso.toString()
-  }
+  let createdAtIso = getValue(obj, 'createdAt', JSONValueKind.STRING)
+  if (createdAtIso != null) feedbackFile.createdAtIso = createdAtIso.toString()
 
-  let valueRaw = obj.get('value')
-  if (valueRaw && !valueRaw.isNull() && valueRaw.kind == JSONValueKind.NUMBER) {
-    feedbackFile.valueRaw = valueRaw.toBigInt()
-  }
+  let valueRaw = getValue(obj, 'value', JSONValueKind.NUMBER)
+  if (valueRaw != null) feedbackFile.valueRaw = valueRaw.toBigInt()
 
-  let valueDecimals = obj.get('valueDecimals')
-  if (valueDecimals && !valueDecimals.isNull() && valueDecimals.kind == JSONValueKind.NUMBER) {
-    feedbackFile.valueDecimals = valueDecimals.toBigInt().toI32()
-  }
+  let valueDecimals = getValue(obj, 'valueDecimals', JSONValueKind.NUMBER)
+  if (valueDecimals != null) feedbackFile.valueDecimals = valueDecimals.toBigInt().toI32()
   
-  let text = obj.get('text')
-  if (text && !text.isNull() && text.kind == JSONValueKind.STRING) {
-    feedbackFile.text = text.toString()
-  }
+  let text = getValue(obj, 'text', JSONValueKind.STRING)
+  if (text != null) feedbackFile.text = text.toString()
 
   // ERC-8004 nested objects (spec only)
   let mcp = obj.get('mcp')
@@ -99,15 +106,8 @@ export function parseFeedbackFile(content: Bytes): void {
   if (a2a && !a2a.isNull() && a2a.kind == JSONValueKind.OBJECT) {
     let a = a2a.toObject()
     if (a != null) {
-      let skills = a.get('skills')
-      if (skills && !skills.isNull() && skills.kind == JSONValueKind.ARRAY) {
-        let arr = skills.toArray()
-        let out: string[] = []
-        for (let i = 0; i < arr.length; i++) {
-          if (arr[i].kind == JSONValueKind.STRING) out.push(arr[i].toString())
-        }
-        feedbackFile.a2aSkills = out
-      }
+      let a2aSkills = parseStringArray(a, 'skills')
+      if (a2aSkills != null) feedbackFile.a2aSkills = a2aSkills
 
       let contextId = a.get('contextId')
       if (contextId && !contextId.isNull() && contextId.kind == JSONValueKind.STRING) {
@@ -125,25 +125,11 @@ export function parseFeedbackFile(content: Bytes): void {
   if (oasf && !oasf.isNull() && oasf.kind == JSONValueKind.OBJECT) {
     let o = oasf.toObject()
     if (o != null) {
-      let skills = o.get('skills')
-      if (skills && !skills.isNull() && skills.kind == JSONValueKind.ARRAY) {
-        let arr = skills.toArray()
-        let out: string[] = []
-        for (let i = 0; i < arr.length; i++) {
-          if (arr[i].kind == JSONValueKind.STRING) out.push(arr[i].toString())
-        }
-        feedbackFile.oasfSkills = out
-      }
+      let oasfSkills = parseStringArray(o, 'skills')
+      if (oasfSkills != null) feedbackFile.oasfSkills = oasfSkills
 
-      let domains = o.get('domains')
-      if (domains && !domains.isNull() && domains.kind == JSONValueKind.ARRAY) {
-        let arr = domains.toArray()
-        let out: string[] = []
-        for (let i = 0; i < arr.length; i++) {
-          if (arr[i].kind == JSONValueKind.STRING) out.push(arr[i].toString())
-        }
-        feedbackFile.oasfDomains = out
-      }
+      let oasfDomains = parseStringArray(o, 'domains')
+      if (oasfDomains != null) feedbackFile.oasfDomains = oasfDomains
     }
   }
 
