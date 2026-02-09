@@ -20,6 +20,68 @@ function log(message, color = 'reset') {
   console.log(`${colors[color]}${message}${colors.reset}`);
 }
 
+
+function validateConstantsFile(constantsContent, networkName, chainId, displayName) {
+  const errors = [];
+  const warnings = [];
+
+
+  const chainIdStr = chainId != null ? chainId.toString() : '';
+  const constNameMatch = constantsContent.match(new RegExp(`export\\s+const\\s+(\\w+)\\s*=\\s+"${networkName}"`));
+  
+  const constName = constNameMatch ? constNameMatch[1] : null;
+
+  if (!constName) {
+    errors.push(`constants.ts: missing Network entry for "${networkName}"`);
+  } else {
+    const chainIdPattern = new RegExp(`if\\s*\\(network\\s*==\\s*Network\\.${constName}\\)\\s*return\\s*BigInt\\.(fromI32\\(${chainIdStr}\\)|fromString\\("${chainIdStr}"\\))`);
+    if (!chainIdPattern.test(constantsContent)) {
+      errors.push(`constants.ts: missing chainId mapping for Network.${constName} -> ${chainIdStr}`);
+    }
+
+    if (displayName) {
+      const displayNamePattern = new RegExp(`if\\s*\\(network\\s*==\\s*Network\\.${constName}\\)\\s*return\\s*"${displayName}"`);
+      if (!displayNamePattern.test(constantsContent)) {
+        errors.push(`constants.ts: displayName mismatch for Network.${constName} -> "${displayName}"`);
+      }
+    }
+  }
+  return { errors, warnings };
+}
+
+function validateContractAddressesFile(contractContent, chainId, displayName) {
+  const errors = [];
+  const warnings = [];
+  const chainIdStr = chainId != null ? chainId.toString() : '';
+  const contractChainIdPattern = new RegExp(`chainId\\.equals\\(BigInt\\.(fromI32\\(${chainIdStr}\\)|fromString\\("${chainIdStr}"\\))\\)`);
+  if (!contractChainIdPattern.test(contractContent)) {
+    errors.push(`contract-addresses.ts: missing chainId case for ${chainIdStr}`);
+  }
+  if (displayName) {
+    const chainNamePattern = new RegExp(`if\\s*\\(chainId\\.equals\\(BigInt\\.(fromI32\\(${chainIdStr}\\)|fromString\\("${chainIdStr}"\\))\\)\\)\\s*return\\s*"${displayName}"`);
+    if (!chainNamePattern.test(contractContent)) {
+      errors.push(`contract-addresses.ts: displayName mismatch for chainId ${chainIdStr} -> "${displayName}"`);
+    }
+  }
+  const supportedChainsPattern = new RegExp(`getSupportedChains\\(\\)[\\s\\S]*?BigInt\\.(fromI32\\(${chainIdStr}\\)|fromString\\("${chainIdStr}"\\))`);
+  if (!supportedChainsPattern.test(contractContent)) {
+    errors.push(`contract-addresses.ts: getSupportedChains missing chainId ${chainIdStr}`);
+  }
+  return { errors, warnings };
+}
+
+function validateChainFile(chainContent, networkName, chainId) {
+  const errors = [];
+  const warnings = [];
+  const chainIdStr = chainId != null ? chainId.toString() : '';
+  const chainMappingPattern = new RegExp(`network\\s*==\\s*"${networkName}"[\\s\\S]*?return\\s+${chainIdStr}`);
+  if (!chainMappingPattern.test(chainContent)) {
+    errors.push(`chain.ts: missing mapping for "${networkName}" -> ${chainIdStr}`);
+  }
+
+  return { errors, warnings };
+};
+
 function validateNetworkConfig(networkName, config) {
   const errors = [];
   const warnings = [];
@@ -61,6 +123,30 @@ function main() {
 
   let hasErrors = false;
 
+  const constantsPath = path.join(ROOT_DIR, 'src', 'constants.ts');
+  const contractsPath = path.join(ROOT_DIR, 'src', 'contract-addresses.ts');
+  const chainsPath = path.join(ROOT_DIR, 'src', 'utils', 'chain.ts');
+
+  if (!fs.existsSync(constantsPath)) {
+    log(`❌ Required file not found: ${constantsPath}`, 'red');
+    hasErrors = true;
+    process.exit(1);
+  }
+  if (!fs.existsSync(contractsPath)) {
+    log(`❌ Required file not found: ${contractsPath}`, 'red');
+    hasErrors = true;
+    process.exit(1);
+  }
+  if (!fs.existsSync(chainsPath)) {
+    log(`❌ Required file not found: ${chainsPath}`, 'red');
+    hasErrors = true;
+    process.exit(1);
+  }
+
+  const constantsContent = fs.readFileSync(constantsPath, 'utf8');
+  const contractsContent = fs.readFileSync(contractsPath, 'utf8');
+  const chainsContent = fs.readFileSync(chainsPath, 'utf8');
+
   // Check if networks directory exists
   if (!fs.existsSync(NETWORKS_DIR)) {
     log('❌ Networks directory not found: ' + NETWORKS_DIR, 'red');
@@ -85,6 +171,27 @@ function main() {
     try {
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
       const { errors, warnings } = validateNetworkConfig(networkName, config);
+
+      if (config.chainId !== undefined && config.chainId !== null &&
+         config.graphNode && config.graphNode.network) {
+        const graphNetwork = config.graphNode.network.toString();
+        const constantsResult = validateConstantsFile(
+          constantsContent,
+          graphNetwork,
+          config.chainId.toString(),
+          config.displayName
+        );
+        const contractsResult = validateContractAddressesFile(
+          contractsContent,
+          config.chainId.toString(),
+          config.displayName
+        );
+        const chainResult = validateChainFile(chainsContent, graphNetwork, config.chainId.toString());
+        errors.push(...constantsResult.errors, ...contractsResult.errors, ...chainResult.errors);
+        warnings.push(...constantsResult.warnings, ...contractsResult.warnings, ...chainResult.warnings);
+      }
+      
+
 
       if (errors.length > 0 || warnings.length > 0) {
         log(`\n📄 ${networkName} (${config.displayName || 'Unknown'})`, 'cyan');
