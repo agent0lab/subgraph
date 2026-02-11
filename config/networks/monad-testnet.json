@@ -13,6 +13,11 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "monad-testnet"
+  },
+  "grafting": {
+    "enabled": false,
+    "subgraphId": "",
+    "startBlock": 0
   }
 }
 

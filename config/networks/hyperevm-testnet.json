@@ -7,5 +7,10 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "hyperevm-testnet"
+  },
+  "grafting": {
+    "enabled": false,
+    "subgraphId": "",
+    "startBlock": 0
   }
 }

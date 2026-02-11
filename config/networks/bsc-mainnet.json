@@ -13,6 +13,11 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "bsc"
+  },
+  "grafting": {
+    "enabled": false,
+    "subgraphId": "",
+    "startBlock": 0
   }
 }
 
