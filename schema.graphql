@@ -98,7 +98,7 @@ type Validation @entity(immutable: false) {
   updatedAt: BigInt!
 }
 
-type AgentMetadata @entity(immutable: true) {
+type AgentMetadata @entity(immutable: false) {
   id: ID! # Format: "chainId:agentId:key"
   agent: Agent!
   key: String!
