@@ -204,7 +204,7 @@ The subgraph uses a **hybrid on-chain/off-chain architecture**:
 #### Agent Entity
 ```graphql
 type Agent @entity(immutable: false) {
-  id: ID!                    # "chainId:agentId"
+  id: Bytes!                    # "chainId:agentId"
   chainId: BigInt!           # Blockchain identifier
   agentId: BigInt!          # Agent ID on the chain
   agentURI: String          # Registration file URI
@@ -225,7 +225,7 @@ type Agent @entity(immutable: false) {
 #### Feedback Entity
 ```graphql
 type Feedback @entity(immutable: false) {
-  id: ID!                    # "chainId:agentId:clientAddress:index"
+  id: Bytes!                    # "chainId:agentId:clientAddress:index"
   agent: Agent!
   clientAddress: Bytes!      # Feedback author
   score: Int!                # 0-100 score
@@ -245,7 +245,7 @@ type Feedback @entity(immutable: false) {
 #### Validation Entity
 ```graphql
 type Validation @entity(immutable: false) {
-  id: ID!                    # requestHash
+  id: Bytes!                    # requestHash
   agent: Agent!
   validatorAddress: Bytes!
   requestUri: String
@@ -273,7 +273,7 @@ enum ValidationStatus {
 #### AgentRegistrationFile
 ```graphql
 type AgentRegistrationFile @entity(immutable: true) {
-  id: ID!                    # Format: "transactionHash:cid"
+  id: Bytes!                    # Format: "transactionHash:cid"
   cid: String!               # IPFS CID (for querying by content)
   agentId: String!          # "chainId:agentId"
   name: String              # Agent display name
@@ -301,7 +301,7 @@ type AgentRegistrationFile @entity(immutable: true) {
 #### FeedbackFile
 ```graphql
 type FeedbackFile @entity(immutable: true) {
-  id: ID!                    # Format: "transactionHash:cid"
+  id: Bytes!                    # Format: "transactionHash:cid"
   cid: String!               # IPFS CID (for querying by content)
   feedbackId: String!       # "chainId:agentId:clientAddress:index"
   text: String              # Detailed feedback text
@@ -325,7 +325,7 @@ type FeedbackFile @entity(immutable: true) {
 #### AgentStats
 ```graphql
 type AgentStats @entity(immutable: false) {
-  id: ID!                    # "chainId:agentId"
+  id: Bytes!                    # "chainId:agentId"
   agent: Agent!
   totalFeedback: BigInt!
   averageScore: BigDecimal!
@@ -341,7 +341,7 @@ type AgentStats @entity(immutable: false) {
 #### Protocol
 ```graphql
 type Protocol @entity(immutable: false) {
-  id: ID!                    # "chainId"
+  id: Bytes!                    # "chainId"
   chainId: BigInt!
   name: String!              # Chain name (e.g., "Ethereum", "Base")
   identityRegistry: Bytes!
@@ -359,7 +359,7 @@ type Protocol @entity(immutable: false) {
 #### GlobalStats
 ```graphql
 type GlobalStats @entity(immutable: false) {
-  id: ID!                    # "global"
+  id: Bytes!                    # "global"
   totalAgents: BigInt!
   totalFeedback: BigInt!
   totalValidations: BigInt!
@@ -375,7 +375,7 @@ type GlobalStats @entity(immutable: false) {
 ### Get Complete Agent Profile
 
 ```graphql
-query GetCompleteAgentDetails($agentId: ID!) {
+query GetCompleteAgentDetails($agentId: Bytes!) {
   agent(id: $agentId) {
     id
     chainId

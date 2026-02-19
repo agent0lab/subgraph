@@ -6,7 +6,7 @@
 # =============================================================================
 # Get all details including metadata, feedback, and responses for a specific agent
 
-query GetCompleteAgentDetails($agentId: ID!) {
+query GetCompleteAgentDetails($agentId: Bytes!) {
   agent(id: $agentId) {
     id
     chainId

@@ -5,10 +5,36 @@
 # CORE ENTITIES
 # =============================================================================
 
+type Protocol @entity(immutable: false) {
+  id: Bytes!
+
+  chainId: BigInt!
+  name: String!
+  
+  # Registry addresses
+  identityRegistry: Bytes!
+  reputationRegistry: Bytes!
+  validationRegistry: Bytes!
+  
+  # Total counts (symmetric with GlobalStats)
+  totalAgents: BigInt!
+  totalFeedback: BigInt!
+  totalValidations: BigInt!
+  
+  # Search and discovery data (chain-specific)
+  agents: [Agent!]! @derivedFrom(field: "protocol")
+  tags: [String!]! # All unique tags on this chain
+  
+  # Timestamps
+  updatedAt: BigInt!
+}
+
 type Agent @entity(immutable: false) {
   # Primary identifiers
-  id: ID! # Format: "chainId:agentId" (e.g., "11155111:123")
-  chainId: BigInt!
+  id: Bytes!
+
+  # Relationships
+  protocol: Protocol!
   agentId: BigInt!
   
   # Basic on-chain information
@@ -39,9 +65,10 @@ type Agent @entity(immutable: false) {
 
 type Feedback @entity(immutable: false) {
   # Primary identifier
-  id: ID! # Format: "chainId:agentId:clientAddress:feedbackIndex"
+  id: Bytes!
   
   # Relationships
+  protocol: Protocol!
   agent: Agent!
   clientAddress: Bytes!
   feedbackIndex: BigInt!
@@ -68,8 +95,12 @@ type Feedback @entity(immutable: false) {
 }
 
 type FeedbackResponse @entity(immutable: true) {
-  id: ID! # Format: "feedbackId:responseIndex"
+  id: Bytes!
+
+  # Relationships
   feedback: Feedback!
+  responseIndex: BigInt!
+
   responder: Bytes!
   responseUri: String
   responseHash: Bytes
@@ -78,7 +109,7 @@ type FeedbackResponse @entity(immutable: true) {
 
 type Validation @entity(immutable: false) {
   # Primary identifier
-  id: ID! # requestHash
+  id: Bytes!
   
   # Relationships
   agent: Agent!
@@ -99,9 +130,13 @@ type Validation @entity(immutable: false) {
 }
 
 type AgentMetadata @entity(immutable: false) {
-  id: ID! # Format: "chainId:agentId:key"
+  id: Bytes!
+
+  # Relationships
+  protocol: Protocol!
   agent: Agent!
   key: String!
+
   value: Bytes!
   updatedAt: BigInt!
 }
@@ -121,7 +156,7 @@ enum ValidationStatus {
 # =============================================================================
 
 type AgentStats @entity(immutable: false) {
-  id: ID! # "chainId:agentId"
+  id: Bytes!
   agent: Agent!
   
   # Feedback statistics
@@ -136,33 +171,6 @@ type AgentStats @entity(immutable: false) {
   # Activity metrics
   lastActivity: BigInt!
   
-  updatedAt: BigInt!
-}
-
-# =============================================================================
-# PROTOCOL ENTITIES
-# =============================================================================
-
-type Protocol @entity(immutable: false) {
-  id: ID! # "chainId"
-  chainId: BigInt!
-  name: String!
-  
-  # Registry addresses
-  identityRegistry: Bytes!
-  reputationRegistry: Bytes!
-  validationRegistry: Bytes!
-  
-  # Total counts (symmetric with GlobalStats)
-  totalAgents: BigInt!
-  totalFeedback: BigInt!
-  totalValidations: BigInt!
-  
-  # Search and discovery data (chain-specific)
-  agents: [Agent!]!           # Array of agents on this chain
-  tags: [String!]!           # All unique tags on this chain
-  
-  # Timestamps
   updatedAt: BigInt!
 }
 
@@ -193,7 +201,9 @@ type GlobalStats @entity(immutable: false) {
 # =============================================================================
 
 type AgentRegistrationFile @entity(immutable: true) {
-  id: ID! # Format: "transactionHash:cid"
+  id: Bytes!
+
+  txHash: Bytes!
   cid: String! # IPFS CID (for querying by content)
   
   # Agent link (passed via context)
@@ -236,7 +246,9 @@ type AgentRegistrationFile @entity(immutable: true) {
 }
 
 type FeedbackFile @entity(immutable: true) {
-  id: ID! # Format: "transactionHash:cid"
+  id: Bytes!
+  
+  txHash: Bytes!
   cid: String! # IPFS CID (for querying by content)
   
   # Feedback link (passed via context)

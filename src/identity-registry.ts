@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
+import { Address, BigInt, Bytes, ByteArray, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
 import { getChainId } from "./utils/chain"
 import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction } from "./utils/ipfs"
 import { isJsonBase64DataUri, extractBase64PayloadFromDataUri } from "./utils/data-uri"
@@ -30,7 +30,7 @@ import { BIGINT_ZERO, BIGINT_ONE, ZERO_ADDRESS } from "./constants"
 export function handleAgentRegistered(event: Registered): void {
   let agentId = event.params.agentId
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${agentId.toString()}`)
   
   // Create or update agent
   let agent = Agent.load(agentEntityId)
@@ -82,10 +82,10 @@ export function handleAgentRegistered(event: Registered): void {
     logIpfsExtraction("agent registration", event.params.agentURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
-      let fileId = `${txHash}:${ipfsHash}`
+      let fileId = Bytes.fromUTF8(`${txHash}:${ipfsHash}`)
       
       let context = new DataSourceContext()
-      context.setString('agentId', agentEntityId)
+      context.setString('agentId', agentEntityId.toString())
       context.setString('cid', ipfsHash)
       context.setString('txHash', txHash)
       context.setBigInt('timestamp', event.block.timestamp)
@@ -94,18 +94,18 @@ export function handleAgentRegistered(event: Registered): void {
       // Set the connection to the composite ID
       agent.registrationFile = fileId
       agent.save()
-      log.info("Set registrationFile connection for agent {} to ID: {}", [agentEntityId, fileId])
+      log.info("Set registrationFile connection for agent {} to ID: {}", [agentEntityId.toString(), fileId.toString()])
     }
   } else if (event.params.agentURI.length > 0 && isJsonBase64DataUri(event.params.agentURI)) {
     let txHash = event.transaction.hash.toHexString()
-    let fileId = `${txHash}:datauri:${event.logIndex.toString()}`
-
+    let fileId = Bytes.fromUTF8(`${txHash}:datauri:${event.logIndex.toString()}`)
     let b64 = extractBase64PayloadFromDataUri(event.params.agentURI)
     let decoded = base64DecodeToBytes(b64)
 
     let registration = new AgentRegistrationFile(fileId)
+    registration.txHash = event.transaction.hash
     registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
-    registration.agentId = agentEntityId
+    registration.agentId = agentEntityId.toString()
     registration.createdAt = event.block.timestamp
     registration.supportedTrusts = []
     registration.mcpTools = []
@@ -128,11 +128,11 @@ export function handleAgentRegistered(event: Registered): void {
 export function handleMetadataSet(event: MetadataSet): void {
   let agentId = event.params.agentId
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${agentId.toString()}`)
   
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
-    log.warning("Metadata set for unknown agent: {}", [agentEntityId])
+    log.warning("Metadata set for unknown agent: {}", [agentEntityId.toString()])
     return
   }
   // Special-case agentWallet: decode metadataValue bytes into a 20-byte address and store on Agent
@@ -157,13 +157,14 @@ export function handleMetadataSet(event: MetadataSet): void {
     } else {
       log.warning("agentWallet metadataValue has unexpected length {} for agent {}", [
         v.length.toString(),
-        agentEntityId
+        agentEntityId.toString()
       ])
     }
   }
   
-  let metadataId = `${chainId.toString()}:${agentId.toString()}:${event.params.metadataKey}`
+  let metadataId = Bytes.fromUTF8(`${chainId.toString()}:${agentId.toString()}:${event.params.metadataKey}`)
   let metadata = new AgentMetadata(metadataId)
+  metadata.protocol = Bytes.fromI32(chainId)
   metadata.agent = agentEntityId
   metadata.key = event.params.metadataKey
   metadata.value = event.params.metadataValue
@@ -174,7 +175,7 @@ export function handleMetadataSet(event: MetadataSet): void {
   agent.save()
   
   log.info("Metadata set for agent {}: {} = {}", [
-    agentEntityId,
+    agentEntityId.toString(),
     event.params.metadataKey,
     event.params.metadataValue.toHexString()
   ])
@@ -183,11 +184,11 @@ export function handleMetadataSet(event: MetadataSet): void {
 export function handleUriUpdated(event: URIUpdated): void {
   let agentId = event.params.agentId
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${agentId.toString()}`)
   
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
-    log.warning("URI updated for unknown agent: {}", [agentEntityId])
+    log.warning("URI updated for unknown agent: {}", [agentEntityId.toString()])
     return
   }
   
@@ -201,10 +202,10 @@ export function handleUriUpdated(event: URIUpdated): void {
     logIpfsExtraction("agent URI update", event.params.newURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
-      let fileId = `${txHash}:${ipfsHash}`
+      let fileId = Bytes.fromUTF8(`${txHash}:${ipfsHash}`)
       
       let context = new DataSourceContext()
-      context.setString('agentId', agentEntityId)
+      context.setString('agentId', agentEntityId.toString())
       context.setString('cid', ipfsHash)
       context.setString('txHash', txHash)
       context.setBigInt('timestamp', event.block.timestamp)
@@ -213,19 +214,20 @@ export function handleUriUpdated(event: URIUpdated): void {
       // Set the connection to the composite ID
       agent.registrationFile = fileId
       agent.save()
-      log.info("Set registrationFile connection for agent {} to ID: {}", [agentEntityId, fileId])
+      log.info("Set registrationFile connection for agent {} to ID: {}", [agentEntityId.toString(), fileId.toString()])
     }
     // updateProtocolActiveCounts removed - active/inactive stats removed
   } else if (event.params.newURI.length > 0 && isJsonBase64DataUri(event.params.newURI)) {
     let txHash = event.transaction.hash.toHexString()
-    let fileId = `${txHash}:datauri:${event.logIndex.toString()}`
+    let fileId = Bytes.fromUTF8(`${txHash}:datauri:${event.logIndex.toString()}`)
 
     let b64 = extractBase64PayloadFromDataUri(event.params.newURI)
     let decoded = base64DecodeToBytes(b64)
 
     let registration = new AgentRegistrationFile(fileId)
+    registration.txHash = event.transaction.hash
     registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
-    registration.agentId = agentEntityId
+    registration.agentId = agentEntityId.toString()
     registration.createdAt = event.block.timestamp
     registration.supportedTrusts = []
     registration.mcpTools = []
@@ -242,7 +244,7 @@ export function handleUriUpdated(event: URIUpdated): void {
     agent.save()
   }
   
-  log.info("Agent URI updated for agent {}: {}", [agentEntityId, event.params.newURI])
+  log.info("Agent URI updated for agent {}: {}", [agentEntityId.toString(), event.params.newURI])
 }
 
 export function handleTransfer(event: Transfer): void {
@@ -253,12 +255,12 @@ export function handleTransfer(event: Transfer): void {
   
   let tokenId = event.params.tokenId
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${tokenId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${tokenId.toString()}`)
   
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
     log.warning("Transfer for unknown agent: {}, from: {}, to: {}", [
-      agentEntityId,
+      agentEntityId.toString(),
       event.params.from.toHexString(),
       event.params.to.toHexString()
     ])
@@ -270,7 +272,7 @@ export function handleTransfer(event: Transfer): void {
   agent.save()
   
   log.info("Agent {} transferred from {} to {}", [
-    agentEntityId,
+    agentEntityId.toString(),
     event.params.from.toHexString(),
     event.params.to.toHexString()
   ])
@@ -279,11 +281,11 @@ export function handleTransfer(event: Transfer): void {
 export function handleApproval(event: Approval): void {
   let tokenId = event.params.tokenId
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${tokenId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${tokenId.toString()}`)
   
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
-    log.warning("Approval for unknown agent: {}", [agentEntityId])
+    log.warning("Approval for unknown agent: {}", [agentEntityId.toString()])
     return
   }
   
@@ -316,7 +318,7 @@ export function handleApproval(event: Approval): void {
   agent.save()
   
   log.info("Approval updated for agent {}: approved = {}", [
-    agentEntityId,
+    agentEntityId.toString(),
     approved.toHexString()
   ])
 }
@@ -340,7 +342,7 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt): 
     return
   }
 
-  let protocolId = chainId.toString()
+  let protocolId = Bytes.fromByteArray(ByteArray.fromBigInt(chainId))
   let protocol = Protocol.load(protocolId)
   
   let isNewProtocol = false
@@ -397,7 +399,7 @@ function updateProtocolActiveCounts(chainId: BigInt, agent: Agent, timestamp: Bi
     return
   }
 
-  let protocolId = chainId.toString()
+  let protocolId = Bytes.fromByteArray(ByteArray.fromBigInt(chainId))
   let protocol = Protocol.load(protocolId)
   if (protocol == null) {
     return

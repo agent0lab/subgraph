@@ -31,12 +31,13 @@ export function parseFeedbackFile(content: Bytes): void {
   let tag2OnChain = context.getString('tag2OnChain')
   
   // Create composite ID: transactionHash:cid
-  let fileId = `${txHash}:${cid}`
+  let fileId = Bytes.fromUTF8(`${txHash}:${cid}`)
   
-  log.info("Parsing feedback file for feedback: {}, CID: {}, fileId: {}", [feedbackId, cid, fileId])
+  log.info("Parsing feedback file for feedback: {}, CID: {}, fileId: {}", [feedbackId, cid, fileId.toString()])
   
   // Create feedback file with composite ID
   let feedbackFile = new FeedbackFile(fileId)
+  feedbackFile.txHash = Bytes.fromUTF8(txHash)
   feedbackFile.cid = cid
   feedbackFile.feedbackId = feedbackId
   feedbackFile.createdAt = context.getBigInt('timestamp')

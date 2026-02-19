@@ -24,12 +24,12 @@ export function handleValidationRequest(event: ValidationRequest): void {
   let validatorAddress = event.params.validatorAddress
   let requestHash = event.params.requestHash
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${agentId.toString()}`)
   
   // Load agent
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
-    log.warning("Validation request for unknown agent: {}", [agentEntityId])
+    log.warning("Validation request for unknown agent: {}", [agentEntityId.toString()])
     return
   }
   
@@ -87,7 +87,7 @@ export function handleValidationResponse(event: ValidationResponse): void {
   let requestHash = event.params.requestHash
   let response = event.params.response
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${agentId.toString()}`)
   
   // Load validation
   let validation = Validation.load(requestHash.toHexString())
@@ -99,7 +99,7 @@ export function handleValidationResponse(event: ValidationResponse): void {
   // Load agent
   let agentForResponse = Agent.load(agentEntityId)
   if (agentForResponse == null) {
-    log.warning("Validation response for unknown agent: {}", [agentEntityId])
+    log.warning("Validation response for unknown agent: {}", [agentEntityId.toString()])
     return
   }
   
@@ -188,7 +188,7 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt): 
     return
   }
 
-  let protocolId = chainId.toString()
+  let protocolId = Bytes.fromByteArray(ByteArray.fromBigInt(chainId))
   let protocol = Protocol.load(protocolId)
   
   if (protocol == null) {
@@ -251,7 +251,7 @@ function scheduleValidationTimeoutCheck(validation: Validation, createdAt: BigIn
   let timeoutAt = createdAt.plus(timeoutPeriod)
   
   log.info("Validation {} scheduled for timeout check at: {}", [
-    validation.id,
+    validation.id.toString(),
     timeoutAt.toString()
   ])
 }
@@ -272,7 +272,7 @@ export function updateValidationStatus(validation: Validation, currentTimestamp:
     
     if (currentTimestamp > timeoutAt) {
       validation.status = "EXPIRED"
-      log.info("Validation {} expired after timeout", [validation.id])
+      log.info("Validation {} expired after timeout", [validation.id.toString()])
     } else {
       validation.status = "PENDING"
     }
