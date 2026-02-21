@@ -102,6 +102,28 @@
           "schema": "1.0.0",
           "subgraph": "1.0.0"
         }
+      },
+      "erc-8004-arbitrum-sepolia": {
+        "network": "arbitrum-sepolia",
+        "displayName": "Arbitrum Sepolia",
+        "chainId": "421614",
+        "status": "prod",
+        "configFile": "config/networks/arbitrum-sepolia.json",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      },
+      "erc-8004-arbitrum-one": {
+        "network": "arbitrum-one",
+        "displayName": "Arbitrum One",
+        "chainId": "42161",
+        "status": "prod",
+        "configFile": "config/networks/arbitrum-one.json",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
       }
     }
   }
