@@ -99,6 +99,24 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
       Bytes.fromHexString("0x34ae1196b1609e01ebc90b75c802b2ea87203f13")
     )
   }
+  // Arbitrum Sepolia Testnet (421614)
+  else if (chainId.equals(BigInt.fromString("421614"))) {
+    return new ContractAddresses(
+      Bytes.fromHexString("0x8004A818BFB912233c491871b3d84c89A494BD9e"),
+      Bytes.fromHexString("0x8004B663056A597Dffe9eCcC1965A193B7388713"),
+      // Validation registry not configured / indexing paused
+      Bytes.fromHexString("0x0000000000000000000000000000000000000000")
+    )
+  }
+  // Arbitrum One (Mainnet) (42161)
+  else if (chainId.equals(BigInt.fromString("42161"))) {
+    return new ContractAddresses(
+      Bytes.fromHexString("0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"),
+      Bytes.fromHexString("0x8004BAa17C55a88189AE136b182e5fdA19dE9b63"),
+      // Validation registry not configured / indexing paused
+      Bytes.fromHexString("0x0000000000000000000000000000000000000000")
+    )
+  }
 
   // Unsupported chain - return zero addresses
   return new ContractAddresses(
@@ -122,6 +140,8 @@ export function getChainName(chainId: BigInt): string {
   if (chainId.equals(BigInt.fromI32(296))) return "Hedera Testnet"
   if (chainId.equals(BigInt.fromI32(998))) return "HyperEVM Testnet"
   if (chainId.equals(BigInt.fromString("1351057110"))) return "SKALE Base Sepolia Testnet"
+  if (chainId.equals(BigInt.fromI32(421614))) return "Arbitrum Sepolia"
+  if (chainId.equals(BigInt.fromI32(42161))) return "Arbitrum One"
   return `Unsupported Chain ${chainId.toString()}`
 }
 
@@ -150,14 +170,16 @@ export function isSupportedChain(chainId: BigInt): boolean {
 
 export function getSupportedChains(): BigInt[] {
   return [
-    BigInt.fromI32(1),             // Ethereum Mainnet
-    BigInt.fromI32(137),           // Polygon Mainnet
-    BigInt.fromI32(11155111),      // Ethereum Sepolia
-    BigInt.fromI32(84532),         // Base Sepolia
-    BigInt.fromI32(59141),         // Linea Sepolia
-    BigInt.fromI32(80002),         // Polygon Amoy
-    BigInt.fromI32(296),           // Hedera Testnet
-    BigInt.fromI32(998),           // HyperEVM Testnet
-    BigInt.fromString("1351057110") // SKALE Base Sepolia Testnet
+    BigInt.fromI32(1),               // Ethereum Mainnet
+    BigInt.fromI32(137),             // Polygon Mainnet
+    BigInt.fromI32(11155111),        // Ethereum Sepolia
+    BigInt.fromI32(84532),           // Base Sepolia
+    BigInt.fromI32(59141),           // Linea Sepolia
+    BigInt.fromI32(80002),           // Polygon Amoy
+    BigInt.fromI32(296),             // Hedera Testnet
+    BigInt.fromI32(998),             // HyperEVM Testnet
+    BigInt.fromString("1351057110"), // SKALE Base Sepolia Testnet
+    BigInt.fromI32(421614),          // Arbitrum Sepolia
+    BigInt.fromI32(42161)            // Arbitrum One (Mainnet)
   ]
 }

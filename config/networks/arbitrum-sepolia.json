@@ -1,0 +1,17 @@
+{
+  "network": "arbitrum-sepolia",
+  "chainId": "421614",
+  "displayName": "Arbitrum Sepolia",
+  "identityRegistry": {
+    "address": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "startBlock": 239945838
+  },
+  "reputationRegistry": {
+    "address": "0x8004B663056A597Dffe9eCcC1965A193B7388713",
+    "startBlock": 239945838
+  },
+  "validationRegistry": {},
+  "graphNode": {
+    "network": "arbitrum-sepolia"
+  }
+}

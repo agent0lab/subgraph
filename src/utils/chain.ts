@@ -26,6 +26,8 @@ export function getChainId(): i32 {
     return 998  // HyperEVM Testnet
   } else if (network == "skale-base-sepolia-testnet") {
     return 1351057110  // SKALE Base Sepolia Testnet
+  } else if (network == "arbitrum-sepolia") {
+    return 421614 // Arbitrum Sepolia Testnet
   }
   // Mainnets (for future use)
   else if (network == "mainnet") {
@@ -37,7 +39,7 @@ export function getChainId(): i32 {
   } else if (network == "polygon" || network == "matic") {
     return 137
   } else if (network == "arbitrum-one") {
-    return 42161
+    return 42161 // Arbitrum One (Mainnet)
   } else if (network == "optimism") {
     return 10
   } else if (network == "bsc") {
