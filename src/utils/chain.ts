@@ -26,6 +26,8 @@ export function getChainId(): i32 {
     return 998  // HyperEVM Testnet
   } else if (network == "skale-base-sepolia-testnet") {
     return 1351057110  // SKALE Base Sepolia Testnet
+  } else if (network == "unichain-testnet") {
+    return 1301  // UniChain Sepolia
   }
   // Mainnets (for future use)
   else if (network == "mainnet") {
