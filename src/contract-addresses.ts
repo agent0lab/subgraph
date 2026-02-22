@@ -100,6 +100,15 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
     )
   }
 
+  // Unichain Sepolia (1301)
+else if (chainId.equals(BigInt.fromI32(1301))) {
+  return new ContractAddresses(
+    Bytes.fromHexString("0x8004A818BFB912233c491871b3d84c89A494BD9e"),
+    Bytes.fromHexString("0x8004B663056A597Dffe9eCcC1965A193B7388713"),
+    Bytes.fromHexString("0x8004Cb1BF31DAf7788923b405b754f57acEB4272")
+  )
+}
+
   // Unsupported chain - return zero addresses
   return new ContractAddresses(
     Bytes.fromHexString("0x0000000000000000000000000000000000000000"),
@@ -122,6 +131,7 @@ export function getChainName(chainId: BigInt): string {
   if (chainId.equals(BigInt.fromI32(296))) return "Hedera Testnet"
   if (chainId.equals(BigInt.fromI32(998))) return "HyperEVM Testnet"
   if (chainId.equals(BigInt.fromString("1351057110"))) return "SKALE Base Sepolia Testnet"
+  if (chainId.equals(BigInt.fromI32(1301))) return "Unichain Sepolia"
   return `Unsupported Chain ${chainId.toString()}`
 }
 
@@ -132,7 +142,7 @@ export function getChainName(chainId: BigInt): string {
 export function validateContractAddresses(addresses: ContractAddresses): boolean {
   // Check if addresses are not zero addresses
   let zeroAddress = Bytes.fromHexString("0x0000000000000000000000000000000000000000")
-  
+
   // Validation registry is currently optional because validation indexing is paused in the manifest.
   // We still store it in `Protocol`, but do not require it to consider a chain supported.
   return !addresses.identityRegistry.equals(zeroAddress) &&
@@ -158,6 +168,7 @@ export function getSupportedChains(): BigInt[] {
     BigInt.fromI32(80002),         // Polygon Amoy
     BigInt.fromI32(296),           // Hedera Testnet
     BigInt.fromI32(998),           // HyperEVM Testnet
-    BigInt.fromString("1351057110") // SKALE Base Sepolia Testnet
+    BigInt.fromString("1351057110"), // SKALE Base Sepolia Testnet
+    BigInt.fromI32(1301)           // Unichain Sepolia
   ]
 }

@@ -102,7 +102,18 @@
           "schema": "1.0.0",
           "subgraph": "1.0.0"
         }
+      },
+      "erc-8004-unichain-sepolia": {
+        "network": "unichain-testnet",
+        "displayName": "Unichain Sepolia",
+        "chainId": "1301",
+        "status": "prod",
+        "configFile": "config/networks/unichain-sepolia.json",
+        "versions": {
+        "schema": "1.0.0",
+        "subgraph": "1.0.0"
       }
     }
+  }
   }
 }
