@@ -1,5 +1,5 @@
 {
-    "network": "nile",
+    "network": "tron-nile",
     "chainId": "3448148188",
     "displayName": "TRON Nile Testnet",
     "identityRegistry": {

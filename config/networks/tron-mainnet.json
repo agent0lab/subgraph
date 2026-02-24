@@ -1,5 +1,5 @@
 {
-    "network": "tron",
+    "network": "tron-mainnet",
     "chainId": "728126428",
     "displayName": "TRON Mainnet",
     "identityRegistry": {

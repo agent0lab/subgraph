@@ -1,5 +1,5 @@
 {
-    "network": "shasta",
+    "network": "tron-shasta",
     "chainId": "241131",
     "displayName": "TRON Shasta Testnet",
     "identityRegistry": {
