@@ -99,6 +99,30 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
       Bytes.fromHexString("0x34ae1196b1609e01ebc90b75c802b2ea87203f13")
     )
   }
+  // TRON Mainnet (728126428)
+  else if (chainId.equals(BigInt.fromI32(728126428))) {
+    return new ContractAddresses(
+      Bytes.fromHexString("0x3af43112221546eb8303e6c311f7ae54d5496822"),
+      Bytes.fromHexString("0x3dca61245f959c8ba373ef065199c396c0a377cf"),
+      Bytes.fromHexString("0x70355dc91f835d0de5245335fad6c7cf6bc704c0")
+    )
+  }
+  // TRON Nile Testnet (3448148188)
+  else if (chainId.equals(BigInt.fromString("3448148188"))) {
+    return new ContractAddresses(
+      Bytes.fromHexString("0x23a8224adb66985c131893e6c014218cd05a663c"),
+      Bytes.fromHexString("0x10b65bcaa3f8cb60f9b04de64ba319812ac30d1f"),
+      Bytes.fromHexString("0x4521efa04ca1ca4131e4aa34789fa5a85f76146a")
+    )
+  }
+  // TRON Shasta Testnet (241131)
+  else if (chainId.equals(BigInt.fromI32(241131))) {
+    return new ContractAddresses(
+      Bytes.fromHexString("0x4e4743b9b53365277d6d2cd0043383ec8604e59f"),
+      Bytes.fromHexString("0xc3119c26a73ba9a5122397663a3a8662e6a8ae22"),
+      Bytes.fromHexString("0x9bd8aa09595285ceeda45e7cf2115064ffb0edd2")
+    )
+  }
 
   // Unsupported chain - return zero addresses
   return new ContractAddresses(
@@ -122,6 +146,9 @@ export function getChainName(chainId: BigInt): string {
   if (chainId.equals(BigInt.fromI32(296))) return "Hedera Testnet"
   if (chainId.equals(BigInt.fromI32(998))) return "HyperEVM Testnet"
   if (chainId.equals(BigInt.fromString("1351057110"))) return "SKALE Base Sepolia Testnet"
+  if (chainId.equals(BigInt.fromI32(728126428))) return "TRON Mainnet"
+  if (chainId.equals(BigInt.fromString("3448148188"))) return "TRON Nile Testnet"
+  if (chainId.equals(BigInt.fromI32(241131))) return "TRON Shasta Testnet"
   return `Unsupported Chain ${chainId.toString()}`
 }
 
@@ -132,11 +159,11 @@ export function getChainName(chainId: BigInt): string {
 export function validateContractAddresses(addresses: ContractAddresses): boolean {
   // Check if addresses are not zero addresses
   let zeroAddress = Bytes.fromHexString("0x0000000000000000000000000000000000000000")
-  
+
   // Validation registry is currently optional because validation indexing is paused in the manifest.
   // We still store it in `Protocol`, but do not require it to consider a chain supported.
   return !addresses.identityRegistry.equals(zeroAddress) &&
-         !addresses.reputationRegistry.equals(zeroAddress)
+    !addresses.reputationRegistry.equals(zeroAddress)
 }
 
 // =============================================================================
@@ -158,6 +185,9 @@ export function getSupportedChains(): BigInt[] {
     BigInt.fromI32(80002),         // Polygon Amoy
     BigInt.fromI32(296),           // Hedera Testnet
     BigInt.fromI32(998),           // HyperEVM Testnet
-    BigInt.fromString("1351057110") // SKALE Base Sepolia Testnet
+    BigInt.fromString("1351057110"), // SKALE Base Sepolia Testnet
+    BigInt.fromI32(728126428),     // TRON Mainnet
+    BigInt.fromString("3448148188"), // TRON Nile Testnet
+    BigInt.fromI32(241131)         // TRON Shasta Testnet
   ]
 }

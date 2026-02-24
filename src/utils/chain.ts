@@ -46,6 +46,12 @@ export function getChainId(): i32 {
     return 143
   } else if (network == "avalanche") {
     return 43114
+  } else if (network == "tron") {
+    return 728126428
+  } else if (network == "nile") {
+    return 3448148188 as i32
+  } else if (network == "shasta") {
+    return 241131
   } else {
     log.warning("Unknown network: {}, using chain ID 0", [network])
     return 0

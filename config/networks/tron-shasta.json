@@ -1,0 +1,20 @@
+{
+    "network": "shasta",
+    "chainId": "241131",
+    "displayName": "TRON Shasta Testnet",
+    "identityRegistry": {
+        "address": "0x4e4743b9b53365277d6d2cd0043383ec8604e59f",
+        "startBlock": 61609398
+    },
+    "reputationRegistry": {
+        "address": "0xc3119c26a73ba9a5122397663a3a8662e6a8ae22",
+        "startBlock": 61609398
+    },
+    "validationRegistry": {
+        "address": "0x9bd8aa09595285ceeda45e7cf2115064ffb0edd2",
+        "startBlock": 61609398
+    },
+    "graphNode": {
+        "network": "shasta"
+    }
+}

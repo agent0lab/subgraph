@@ -102,6 +102,39 @@
           "schema": "1.0.0",
           "subgraph": "1.0.0"
         }
+      },
+      "erc-8004-tron-mainnet": {
+        "network": "tron",
+        "displayName": "TRON Mainnet",
+        "chainId": "728126428",
+        "status": "prod",
+        "configFile": "config/networks/tron-mainnet.json",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      },
+      "erc-8004-tron-nile": {
+        "network": "nile",
+        "displayName": "TRON Nile Testnet",
+        "chainId": "3448148188",
+        "status": "prod",
+        "configFile": "config/networks/tron-nile.json",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      },
+      "erc-8004-tron-shasta": {
+        "network": "shasta",
+        "displayName": "TRON Shasta Testnet",
+        "chainId": "241131",
+        "status": "prod",
+        "configFile": "config/networks/tron-shasta.json",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
       }
     }
   }
