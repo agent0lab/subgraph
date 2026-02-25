@@ -20,6 +20,10 @@ export class ContractAddresses {
   }
 }
 
+// 3448148188 overflows AssemblyScript i32 and can appear as -846819108.
+const TRON_NILE_CHAIN_ID_UNSIGNED = BigInt.fromString("3448148188")
+const TRON_NILE_CHAIN_ID_SIGNED = BigInt.fromI32(-846819108)
+
 // =============================================================================
 // ADDRESS RESOLUTION
 // =============================================================================
@@ -108,7 +112,10 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
     )
   }
   // TRON Nile Testnet (3448148188)
-  else if (chainId.equals(BigInt.fromString("3448148188"))) {
+  else if (
+    chainId.equals(TRON_NILE_CHAIN_ID_UNSIGNED) ||
+    chainId.equals(TRON_NILE_CHAIN_ID_SIGNED)
+  ) {
     return new ContractAddresses(
       Bytes.fromHexString("0x23a8224adb66985c131893e6c014218cd05a663c"),
       Bytes.fromHexString("0x10b65bcaa3f8cb60f9b04de64ba319812ac30d1f"),
@@ -147,7 +154,10 @@ export function getChainName(chainId: BigInt): string {
   if (chainId.equals(BigInt.fromI32(998))) return "HyperEVM Testnet"
   if (chainId.equals(BigInt.fromString("1351057110"))) return "SKALE Base Sepolia Testnet"
   if (chainId.equals(BigInt.fromI32(728126428))) return "TRON Mainnet"
-  if (chainId.equals(BigInt.fromString("3448148188"))) return "TRON Nile Testnet"
+  if (
+    chainId.equals(TRON_NILE_CHAIN_ID_UNSIGNED) ||
+    chainId.equals(TRON_NILE_CHAIN_ID_SIGNED)
+  ) return "TRON Nile Testnet"
   if (chainId.equals(BigInt.fromI32(241131))) return "TRON Shasta Testnet"
   return `Unsupported Chain ${chainId.toString()}`
 }
@@ -187,7 +197,8 @@ export function getSupportedChains(): BigInt[] {
     BigInt.fromI32(998),           // HyperEVM Testnet
     BigInt.fromString("1351057110"), // SKALE Base Sepolia Testnet
     BigInt.fromI32(728126428),     // TRON Mainnet
-    BigInt.fromString("3448148188"), // TRON Nile Testnet
+    TRON_NILE_CHAIN_ID_UNSIGNED,   // TRON Nile Testnet (unsigned)
+    TRON_NILE_CHAIN_ID_SIGNED,     // TRON Nile Testnet (signed i32 overflow)
     BigInt.fromI32(241131)         // TRON Shasta Testnet
   ]
 }

@@ -49,7 +49,8 @@ export function getChainId(): i32 {
   } else if (network == "tron") {
     return 728126428
   } else if (network == "nile") {
-    return 3448148188 as i32
+    // 3448148188 overflows i32 in AssemblyScript and becomes -846819108.
+    return -846819108
   } else if (network == "shasta") {
     return 241131
   } else {

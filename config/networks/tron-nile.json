@@ -4,15 +4,15 @@
     "displayName": "TRON Nile Testnet",
     "identityRegistry": {
         "address": "0x23a8224adb66985c131893e6c014218cd05a663c",
-        "startBlock": 63549401
+        "startBlock": 64695000
     },
     "reputationRegistry": {
         "address": "0x10b65bcaa3f8cb60f9b04de64ba319812ac30d1f",
-        "startBlock": 63549401
+        "startBlock": 64695000
     },
     "validationRegistry": {
         "address": "0x4521efa04ca1ca4131e4aa34789fa5a85f76146a",
-        "startBlock": 63549401
+        "startBlock": 64695000
     },
     "graphNode": {
         "network": "nile"

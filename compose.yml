@@ -20,8 +20,8 @@ services:
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
       #ethereum: 'sepolia:https://sepolia.drpc.org'
-      ethereum: 'nile:http://rpc-proxy:8080'
-      GRAPH_LOG: info
+      ethereum: 'nile:archive:http://rpc-proxy:8080'
+      GRAPH_LOG: debug
   ipfs:
     image: ipfs/kubo:v0.17.0
     ports:
@@ -55,3 +55,5 @@ services:
     environment:
       UPSTREAM_RPC_URL: "https://nile.trongrid.io/jsonrpc"
       PORT: 8080
+      # Prefer TRON_GRID_API_KEY from host env; TRONGRID_API_KEY is also supported by proxy.
+      TRON_GRID_API_KEY: "${TRON_GRID_API_KEY}"

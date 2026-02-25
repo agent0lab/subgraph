@@ -40,3 +40,4 @@ coverage/
 
 # From Docker
 data
+__pycache__
