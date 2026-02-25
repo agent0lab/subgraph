@@ -9,10 +9,8 @@ app = FastAPI()
 
 # Get upstream RPC URL from environment variable
 UPSTREAM_URL = os.getenv("UPSTREAM_RPC_URL", "https://nile.trongrid.io/jsonrpc")
-TRONGRID_API_KEY = (
-    os.getenv("TRONGRID_API_KEY", "").strip()
-    or os.getenv("TRON_GRID_API_KEY", "").strip()
-)
+TRONGRID_API_KEY = os.getenv("TRON_GRID_API_KEY", "").strip()
+
 ZERO_HASH = "0x" + "0" * 64
 ZERO_ADDR = "0x" + "0" * 40
 ZERO_NONCE = "0x" + "0" * 16
@@ -20,10 +18,8 @@ ZERO_BLOOM = "0x" + "0" * 512
 # TronGrid rejects eth_getLogs ranges larger than 5000 blocks.
 MAX_LOG_BLOCK_RANGE = 5000
 
-
 def to_hex(n: int) -> str:
     return hex(max(0, n))
-
 
 def parse_hex_int(value: str):
     if not isinstance(value, str):
@@ -34,7 +30,6 @@ def parse_hex_int(value: str):
         return int(value, 16)
     except ValueError:
         return None
-
 
 def normalize_block(result):
     # Normalize partial/non-EVM block payloads so graph-node can decode safely.
@@ -258,6 +253,6 @@ async def proxy(request: Request):
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
-    print(f"TRON-Ethereum RPC Proxy started on port {port}")
+    print(f"TRON RPC Proxy started on port {port}")
     print(f"Upstream URL: {UPSTREAM_URL}")
     uvicorn.run(app, host="0.0.0.0", port=port)
