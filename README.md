@@ -590,7 +590,7 @@ npm run create-local
 
 4. Deploy locally:
 ```bash
-npm run deploy-local
+npm run deploy-local deployments/generated/erc-8004-{network-name}/subgraph.yaml
 ```
 
 5. Query local endpoint:
