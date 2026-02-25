@@ -10,6 +10,7 @@
         "chainId": "11155111",
         "status": "prod",
         "configFile": "config/networks/eth-sepolia.json",
+        "goldskyName": "erc-8004-eth-sepolia",
         "versions": {
           "schema": "1.0.0",
           "subgraph": "1.0.0"
@@ -21,6 +22,7 @@
         "chainId": "1",
         "status": "prod",
         "configFile": "config/networks/eth-mainnet.json",
+        "goldskyName": "erc-8004-eth-mainnet",
         "versions": {
           "schema": "1.0.0",
           "subgraph": "1.0.0"
@@ -32,28 +34,43 @@
         "chainId": "84532",
         "status": "prod",
         "configFile": "config/networks/base-sepolia.json",
+        "goldskyName": "erc-8004-base-sepolia",
         "versions": {
           "schema": "1.0.0",
           "subgraph": "1.0.0"
         }
       },
-      "erc-8004-linea-sepolia": {
-        "network": "linea-sepolia",
-        "displayName": "Linea Sepolia",
-        "chainId": "59141",
+      "erc-8004-base-mainnet": {
+        "network": "base-mainnet",
+        "displayName": "Base Mainnet",
+        "chainId": "8453",
         "status": "prod",
-        "configFile": "config/networks/linea-sepolia.json",
+        "configFile": "config/networks/base-mainnet.json",
+        "goldskyName": "erc-8004-base-mainnet",
         "versions": {
           "schema": "1.0.0",
           "subgraph": "1.0.0"
         }
       },
-      "erc-8004-polygon-amoy": {
-        "network": "polygon-amoy",
-        "displayName": "Polygon Amoy",
-        "chainId": "80002",
+      "erc-8004-bsc-mainnet": {
+        "network": "bsc-mainnet",
+        "displayName": "BSC Mainnet",
+        "chainId": "56",
         "status": "prod",
-        "configFile": "config/networks/polygon-amoy.json",
+        "configFile": "config/networks/bsc-mainnet.json",
+        "goldskyName": "erc-8004-bsc-mainnet",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      },
+      "erc-8004-bsc-testnet": {
+        "network": "bsc-testnet",
+        "displayName": "BSC Testnet",
+        "chainId": "97",
+        "status": "prod",
+        "configFile": "config/networks/bsc-testnet.json",
+        "goldskyName": "erc-8004-bsc-testnet",
         "versions": {
           "schema": "1.0.0",
           "subgraph": "1.0.0"
@@ -65,6 +82,55 @@
         "chainId": "137",
         "status": "prod",
         "configFile": "config/networks/polygon-mainnet.json",
+        "goldskyName": "erc-8004-polygon-mainnet",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      },
+      "erc-8004-monad-mainnet": {
+        "network": "monad-mainnet",
+        "displayName": "Monad Mainnet",
+        "chainId": "143",
+        "status": "prod",
+        "configFile": "config/networks/monad-mainnet.json",
+        "goldskyName": "erc-8004-monad-mainnet",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      },
+      "erc-8004-monad-testnet": {
+        "network": "monad-testnet",
+        "displayName": "Monad Testnet",
+        "chainId": "10143",
+        "status": "prod",
+        "configFile": "config/networks/monad-testnet.json",
+        "goldskyName": "erc-8004-monad-testnet",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      },
+      "erc-8004-linea-sepolia": {
+        "network": "linea-sepolia",
+        "displayName": "Linea Sepolia",
+        "chainId": "59141",
+        "status": "prod",
+        "configFile": "config/networks/linea-sepolia.json",
+        "goldskyName": "erc-8004-linea-sepolia",
+        "versions": {
+          "schema": "1.0.0",
+          "subgraph": "1.0.0"
+        }
+      },
+      "erc-8004-polygon-amoy": {
+        "network": "polygon-amoy",
+        "displayName": "Polygon Amoy",
+        "chainId": "80002",
+        "status": "prod",
+        "configFile": "config/networks/polygon-amoy.json",
+        "goldskyName": "erc-8004-polygon-amoy",
         "versions": {
           "schema": "1.0.0",
           "subgraph": "1.0.0"
@@ -87,6 +153,7 @@
         "chainId": "998",
         "status": "prod",
         "configFile": "config/networks/hyperevm-testnet.json",
+        "goldskyName": "erc-8004-hyperevm-testnet",
         "versions": {
           "schema": "1.0.0",
           "subgraph": "1.0.0"

@@ -7,5 +7,8 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "skale-base-sepolia-testnet"
+  },
+  "goldsky": {
+    "supported": false
   }
 }

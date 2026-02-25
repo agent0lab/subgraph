@@ -13,5 +13,9 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "base-sepolia"
+  },
+  "goldsky": {
+    "supported": true,
+    "slug": "base-sepolia"
   }
 }

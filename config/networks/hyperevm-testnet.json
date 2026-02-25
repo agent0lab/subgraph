@@ -7,5 +7,9 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "hyperevm-testnet"
+  },
+  "goldsky": {
+    "supported": true,
+    "slug": "hyperevm-testnet"
   }
 }

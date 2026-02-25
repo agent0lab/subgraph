@@ -13,6 +13,10 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "matic"
+  },
+  "goldsky": {
+    "supported": true,
+    "slug": "matic"
   }
 }
 

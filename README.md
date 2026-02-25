@@ -112,6 +112,10 @@ DEPLOYMENT=erc-8004-base-sepolia npm run build:single
   },
   "graphNode": {
     "network": "new-network"
+  },
+  "goldsky": {
+    "supported": true,
+    "slug": "new-network"
   }
 }
 ```
@@ -159,8 +163,9 @@ if (chainId.equals(BigInt.fromI32(123456))) {
 
 ### Deployment
 
+#### The Graph Studio
+
 ```bash
-# Deploy to The Graph Studio (requires auth token)
 # Set your deployment key first:
 # npx graph auth --studio <DEPLOY_KEY>
 
@@ -168,11 +173,49 @@ if (chainId.equals(BigInt.fromI32(123456))) {
 DEPLOYMENT=erc-8004-eth-sepolia npm run deploy
 
 # Deploy to Graph Studio (recommended; lets you set a release label)
-# STUDIO_SLUG=<your-studio-subgraph-slug> DEPLOYMENT=erc-8004-eth-sepolia VERSION_LABEL=<your-release-label> npm run deploy:studio
+STUDIO_SLUG=<your-studio-subgraph-slug> \
+DEPLOYMENT=erc-8004-eth-sepolia \
+VERSION_LABEL=<your-release-label> \
+npm run deploy:studio
 
 # Or deploy locally for testing
 npm run create-local && npm run deploy-local
 ```
+
+#### Goldsky
+
+Goldsky provides backwards-compatible subgraph hosting with improved performance (up to 6x faster queries) and 99.9%+ uptime.
+
+**Prerequisites:**
+- Install Goldsky CLI: `curl https://goldsky.com | sh`
+- Obtain an API token from your [Goldsky Project Settings](https://app.goldsky.com) page
+
+**Important:** Unlike The Graph, Goldsky requires you to build before deploying. The deploy scripts handle this automatically. Also, Goldsky uses unique `name/version` pairs — redeploying the same version will error. Bump the `VERSION` or use tags to manage releases.
+
+```bash
+# Deploy a single network to Goldsky
+GOLDSKY_TOKEN=<your-token> \
+DEPLOYMENT=erc-8004-eth-sepolia \
+VERSION=1.0.0 \
+npm run deploy:goldsky
+
+# Deploy with a tag (e.g., "prod") for stable endpoints
+GOLDSKY_TOKEN=<your-token> \
+DEPLOYMENT=erc-8004-eth-sepolia \
+VERSION=1.0.0 \
+TAG=prod \
+npm run deploy:goldsky
+
+# Deploy ALL supported networks to Goldsky
+GOLDSKY_TOKEN=<your-token> \
+VERSION=1.0.0 \
+npm run deploy:goldsky:all
+
+# Update a tag to point to a new version (zero-downtime swap)
+goldsky subgraph tag create erc-8004-eth-sepolia/2.0.0 --tag prod --token $GOLDSKY_TOKEN
+```
+
+**Goldsky-supported networks:** All networks except Hedera Testnet and SKALE Base Sepolia (see `goldsky.supported` in each network config).
 
 ## 📊 Overview
 

@@ -13,6 +13,10 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "base"
+  },
+  "goldsky": {
+    "supported": true,
+    "slug": "base"
   }
 }
 
