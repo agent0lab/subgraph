@@ -1,5 +1,5 @@
 import { BigInt, Bytes, ethereum, log, BigDecimal } from "@graphprotocol/graph-ts"
-import { getChainId } from "./utils/chain"
+import { getChainIdBigInt } from "./utils/chain"
 import {
   ValidationRequest,
   ValidationResponse
@@ -22,8 +22,9 @@ export function handleValidationRequest(event: ValidationRequest): void {
   let agentId = event.params.agentId
   let validatorAddress = event.params.validatorAddress
   let requestHash = event.params.requestHash
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${agentId.toString()}`
   
   // Load agent
   let agent = Agent.load(agentEntityId)
@@ -59,7 +60,7 @@ export function handleValidationRequest(event: ValidationRequest): void {
   updateAgentValidationStats(agentEntityId, true, false, 0, event.block.timestamp)
   
   // Update protocol stats
-  updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp)
+  updateProtocolStats(chainId, agent, event.block.timestamp)
   
   // Update global stats - validation
   let globalStats = GlobalStats.load("global")
@@ -85,8 +86,9 @@ export function handleValidationResponse(event: ValidationResponse): void {
   let agentId = event.params.agentId
   let requestHash = event.params.requestHash
   let response = event.params.response
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${agentId.toString()}`
   
   // Load validation
   let validation = Validation.load(requestHash.toHexString())
@@ -124,7 +126,7 @@ export function handleValidationResponse(event: ValidationResponse): void {
   
   // Do NOT increment protocol/global totals here; totals are counted on ValidationRequest.
   // We only touch updatedAt for observability.
-  let protocol = Protocol.load(BigInt.fromI32(chainId).toString())
+  let protocol = Protocol.load(chainIdStr)
   if (protocol != null) {
     protocol.updatedAt = event.block.timestamp
     protocol.save()

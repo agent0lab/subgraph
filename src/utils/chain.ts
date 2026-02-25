@@ -1,4 +1,4 @@
-import { dataSource, log } from "@graphprotocol/graph-ts"
+import { BigInt, dataSource, log } from "@graphprotocol/graph-ts"
 
 /**
  * Get the chain ID for the current data source network
@@ -57,4 +57,15 @@ export function getChainId(): i32 {
     log.warning("Unknown network: {}, using chain ID 0", [network])
     return 0
   }
+}
+
+/**
+ * Get chain ID as BigInt, preserving unsigned values for chains that overflow i32.
+ */
+export function getChainIdBigInt(): BigInt {
+  let network = dataSource.network()
+  if (network == "nile") {
+    return BigInt.fromString("3448148188")
+  }
+  return BigInt.fromI32(getChainId())
 }

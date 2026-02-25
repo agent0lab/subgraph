@@ -1,5 +1,5 @@
 import { BigInt, Bytes, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
-import { getChainId } from "./utils/chain"
+import { getChainIdBigInt } from "./utils/chain"
 import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction } from "./utils/ipfs"
 import {
   NewFeedback,
@@ -43,8 +43,9 @@ export function handleNewFeedback(event: NewFeedback): void {
   let agentId = event.params.agentId
   let clientAddress = event.params.clientAddress
   let feedbackIndex = event.params.feedbackIndex
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${agentId.toString()}`
   
   // Load agent
   let agent = Agent.load(agentEntityId)
@@ -112,7 +113,7 @@ export function handleNewFeedback(event: NewFeedback): void {
   // Tag statistics removed for scalability
   
   // Update protocol stats
-  updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp, feedback.tag1 ? feedback.tag1! : "", event.params.tag2)
+  updateProtocolStats(chainId, agent, event.block.timestamp, feedback.tag1 ? feedback.tag1! : "", event.params.tag2)
   
   // Update global stats - feedback
   let globalStats = GlobalStats.load("global")
@@ -156,8 +157,9 @@ export function handleFeedbackRevoked(event: FeedbackRevoked): void {
   let agentId = event.params.agentId
   let clientAddress = event.params.clientAddress
   let feedbackIndex = event.params.feedbackIndex
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${agentId.toString()}`
   
   // Find and revoke feedback
   let feedbackId = `${agentEntityId}:${clientAddress.toHexString()}:${feedbackIndex.toString()}`
@@ -185,8 +187,9 @@ export function handleResponseAppended(event: ResponseAppended): void {
   let clientAddress = event.params.clientAddress
   let feedbackIndex = event.params.feedbackIndex
   let responder = event.params.responder
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${agentId.toString()}`
   
   // Find feedback
   let feedbackId = `${agentEntityId}:${clientAddress.toHexString()}:${feedbackIndex.toString()}`

@@ -1,5 +1,5 @@
 import { Address, BigInt, Bytes, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
-import { getChainId } from "./utils/chain"
+import { getChainIdBigInt } from "./utils/chain"
 import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction } from "./utils/ipfs"
 import { isJsonBase64DataUri, extractBase64PayloadFromDataUri } from "./utils/data-uri"
 import { base64DecodeToBytes } from "./utils/base64"
@@ -28,14 +28,15 @@ import { getContractAddresses, getChainName, isSupportedChain } from "./contract
 
 export function handleAgentRegistered(event: Registered): void {
   let agentId = event.params.agentId
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${agentId.toString()}`
   
   // Create or update agent
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
     agent = new Agent(agentEntityId)
-    agent.chainId = BigInt.fromI32(chainId)
+    agent.chainId = chainId
     agent.agentId = agentId
     agent.createdAt = event.block.timestamp
     agent.operators = []
@@ -52,7 +53,7 @@ export function handleAgentRegistered(event: Registered): void {
   
   agent.save()
   
-  updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp)
+  updateProtocolStats(chainId, agent, event.block.timestamp)
   
   // Update global stats - agent registration
   let globalStats = GlobalStats.load("global")
@@ -121,13 +122,14 @@ export function handleAgentRegistered(event: Registered): void {
     agent.save()
   }
   
-  log.info("Agent registered: {} on chain {}", [agentId.toString(), chainId.toString()])
+  log.info("Agent registered: {} on chain {}", [agentId.toString(), chainIdStr])
 }
 
 export function handleMetadataSet(event: MetadataSet): void {
   let agentId = event.params.agentId
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${agentId.toString()}`
   
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
@@ -161,7 +163,7 @@ export function handleMetadataSet(event: MetadataSet): void {
     }
   }
   
-  let metadataId = `${chainId.toString()}:${agentId.toString()}:${event.params.metadataKey}`
+  let metadataId = `${chainIdStr}:${agentId.toString()}:${event.params.metadataKey}`
   let metadata = new AgentMetadata(metadataId)
   metadata.agent = agentEntityId
   metadata.key = event.params.metadataKey
@@ -181,8 +183,9 @@ export function handleMetadataSet(event: MetadataSet): void {
 
 export function handleUriUpdated(event: URIUpdated): void {
   let agentId = event.params.agentId
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${agentId.toString()}`
   
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
@@ -251,8 +254,9 @@ export function handleTransfer(event: Transfer): void {
   }
   
   let tokenId = event.params.tokenId
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${tokenId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${tokenId.toString()}`
   
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
@@ -277,8 +281,9 @@ export function handleTransfer(event: Transfer): void {
 
 export function handleApproval(event: Approval): void {
   let tokenId = event.params.tokenId
-  let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${tokenId.toString()}`
+  let chainId = getChainIdBigInt()
+  let chainIdStr = chainId.toString()
+  let agentEntityId = `${chainIdStr}:${tokenId.toString()}`
   
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
@@ -321,7 +326,7 @@ export function handleApproval(event: Approval): void {
 }
 
 export function handleApprovalForAll(event: ApprovalForAll): void {
-  let chainId = getChainId()
+  let chainId = getChainIdBigInt()
   let owner = event.params.owner
   let operator = event.params.operator
   let approved = event.params.approved
@@ -410,4 +415,3 @@ function updateProtocolActiveCounts(chainId: BigInt, agent: Agent, timestamp: Bi
   
   // Removed globalStats updates for activeAgents/inactiveAgents - calculate via query instead
 }
-
