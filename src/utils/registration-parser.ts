@@ -152,6 +152,7 @@ export function populateRegistrationFromJsonBytes(metadata: AgentRegistrationFil
   }
 
   // ERC-8004 uses x402Support (camelCase). Keep fallback to x402support.
+  // Value may be a plain boolean OR an object like {"enabled": false} — only accept booleans.
   let x402Support = obj.get("x402Support")
   if (x402Support == null || x402Support.isNull()) x402Support = obj.get("x402support")
   if (x402Support && !x402Support.isNull()) {
