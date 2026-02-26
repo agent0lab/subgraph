@@ -140,12 +140,13 @@ export function populateRegistrationFromJsonBytes(metadata: AgentRegistrationFil
   if (image && !image.isNull() && image.kind == JSONValueKind.STRING) metadata.image = image.toString()
 
   let active = obj.get("active")
-  if (active && !active.isNull()) metadata.active = active.toBool()
+  if (active && !active.isNull() && active.kind == JSONValueKind.BOOL) metadata.active = active.toBool()
 
   // ERC-8004 uses x402Support (camelCase). Keep fallback to x402support.
+  // Value may be a plain boolean OR an object like {"enabled": false} — only accept booleans.
   let x402Support = obj.get("x402Support")
   if (x402Support == null || x402Support.isNull()) x402Support = obj.get("x402support")
-  if (x402Support && !x402Support.isNull()) metadata.x402Support = x402Support.toBool()
+  if (x402Support && !x402Support.isNull() && x402Support.kind == JSONValueKind.BOOL) metadata.x402Support = x402Support.toBool()
 
   let supportedTrusts = obj.get("supportedTrusts")
   if (supportedTrusts == null || supportedTrusts.isNull()) supportedTrusts = obj.get("supportedTrust")

@@ -12,6 +12,11 @@
   },
   "validationRegistry": {},
   "graphNode": {
+    "supported": true,
+    "network": "mainnet"
+  },
+  "goldsky": {
+    "supported": true,
     "network": "mainnet"
   }
 }

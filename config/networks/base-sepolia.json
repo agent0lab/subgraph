@@ -12,6 +12,11 @@
   },
   "validationRegistry": {},
   "graphNode": {
+    "supported": true,
+    "network": "base-sepolia"
+  },
+  "goldsky": {
+    "supported": true,
     "network": "base-sepolia"
   }
 }
