@@ -12,11 +12,12 @@
   },
   "validationRegistry": {},
   "graphNode": {
+    "supported": true,
     "network": "chapel"
   },
   "goldsky": {
     "supported": true,
-    "slug": "chapel"
+    "network": "chapel"
   }
 }
 

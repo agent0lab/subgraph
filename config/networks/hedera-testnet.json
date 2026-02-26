@@ -6,6 +6,7 @@
   "reputationRegistry": {},
   "validationRegistry": {},
   "graphNode": {
+    "supported": false,
     "network": "hedera-testnet"
   },
   "goldsky": {

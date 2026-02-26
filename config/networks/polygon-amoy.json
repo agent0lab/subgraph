@@ -6,10 +6,11 @@
   "reputationRegistry": {},
   "validationRegistry": {},
   "graphNode": {
+    "supported": true,
     "network": "polygon-amoy"
   },
   "goldsky": {
     "supported": true,
-    "slug": "polygon-amoy"
+    "network": "polygon-amoy"
   }
 }

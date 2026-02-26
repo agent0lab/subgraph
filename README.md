@@ -6,24 +6,28 @@
 
 ## 🌐 Supported Networks
 
-| Network | Chain ID | Status | Endpoint |
-|---------|----------|--------|----------|
-| **Ethereum Mainnet** | 1 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/FV6RR6y13rsnCxBAicKuQEwDp8ioEGiNaWaZUmvr1F8k) |
-| **Base Mainnet** | 8453 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb) |
-| **BSC Mainnet** | 56 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/D6aWqowLkWqBgcqmpNKXuNikPkob24ADXCciiP8Hvn1K) |
-| **Polygon Mainnet** | 137 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/9q16PZv1JudvtnCAf44cBoxg82yK9SSsFvrjCY9xnneF) |
-| **Monad** | 143 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/4tvLxkczjhSaMiqRrCV1EyheYHyJ7Ad8jub1UUyukBjg) |
-| **Ethereum Sepolia** | 11155111 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT) |
-| **Base Sepolia** | 84532 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u) |
-| **BSC Chapel** | 97 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/BTjind17gmRZ6YhT9peaCM13SvWuqztsmqyfjpntbg3Z) |
-| **Monad Testnet** | 10143 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/8iiMH9sj471jbp7AwUuuyBXvPJqCEsobuHBeUEKQSxhU) |
-| **Polygon Amoy** | 80002 | ⛔️ Contracts not deployed | - |
-| **Linea Sepolia** | 59141 | ⛔️ Contracts not deployed | - |
-| **Hedera Testnet** | 296 | ⛔️ Contracts not deployed | - |
-| **HyperEVM Testnet** | 998 | ⛔️ Contracts not deployed | - |
-| **SKALE Base Sepolia** | 1351057110 | ⛔️ Contracts not deployed | - |
+| Network | Chain ID | Status | The Graph | Goldsky |
+|---------|----------|--------|-----------|---------|
+| **Ethereum Mainnet** | 1 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/FV6RR6y13rsnCxBAicKuQEwDp8ioEGiNaWaZUmvr1F8k) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-eth-mainnet/1.0.1/gn) |
+| **Base Mainnet** | 8453 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-base-mainnet/1.0.1/gn) |
+| **BSC Mainnet** | 56 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/D6aWqowLkWqBgcqmpNKXuNikPkob24ADXCciiP8Hvn1K) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-bsc-mainnet/1.0.1/gn) |
+| **Polygon Mainnet** | 137 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/9q16PZv1JudvtnCAf44cBoxg82yK9SSsFvrjCY9xnneF) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-polygon-mainnet/1.0.1/gn) |
+| **Monad** | 143 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/4tvLxkczjhSaMiqRrCV1EyheYHyJ7Ad8jub1UUyukBjg) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-monad-mainnet/1.0.1/gn) |
+| **Ethereum Sepolia** | 11155111 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/6wQRC7geo9XYAhckfmfo8kbMRLeWU8KQd3XsJqFKmZLT) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-eth-sepolia/1.0.1/gn) |
+| **Base Sepolia** | 84532 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/4yYAvQLFjBhBtdRCY7eUWo181VNoTSLLFd5M7FXQAi6u) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-base-sepolia/1.0.1/gn) |
+| **BSC Chapel** | 97 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/BTjind17gmRZ6YhT9peaCM13SvWuqztsmqyfjpntbg3Z) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-bsc-testnet/1.0.1/gn) |
+| **Monad Testnet** | 10143 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/8iiMH9sj471jbp7AwUuuyBXvPJqCEsobuHBeUEKQSxhU) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-monad-testnet/1.0.1/gn) |
+| **Polygon Amoy** | 80002 | ⛔️ Contracts not deployed | - | - |
+| **Linea Sepolia** | 59141 | ⛔️ Contracts not deployed | - | - |
+| **Hedera Testnet** | 296 | ⛔️ Contracts not deployed | - | - |
+| **HyperEVM Testnet** | 998 | ⛔️ Contracts not deployed | - | - |
+| **SKALE Base Sepolia** | 1351057110 | ⛔️ Contracts not deployed | - | - |
 
-Note: The Graph Gateway endpoints require authentication (API key / authorization header). If you see an “auth error”, use the gateway form `https://gateway.thegraph.com/api/<API_KEY>/subgraphs/id/<SUBGRAPH_ID>`.
+**The Graph:** Endpoints require authentication (API key / authorization header). Use the form `https://gateway.thegraph.com/api/<API_KEY>/subgraphs/id/<SUBGRAPH_ID>`.
+
+**Goldsky:** Endpoints are public with 50/10s per-IP rate limits — no authentication required for queries.
+
+Provider support per network is configured via `graphNode.supported` and `goldsky.supported` in each network config file.
 
 ## 🚀 Quick Start
 
@@ -111,11 +115,12 @@ DEPLOYMENT=erc-8004-base-sepolia npm run build:single
     "startBlock": 1
   },
   "graphNode": {
+    "supported": true,
     "network": "new-network"
   },
   "goldsky": {
     "supported": true,
-    "slug": "new-network"
+    "network": "new-network"
   }
 }
 ```
@@ -184,7 +189,7 @@ npm run create-local && npm run deploy-local
 
 #### Goldsky
 
-Goldsky provides backwards-compatible subgraph hosting with improved performance (up to 6x faster queries) and 99.9%+ uptime.
+Goldsky provides backwards-compatible subgraph hosting with improved performance and reliability. Goldsky also has public-query endpoints, allowing you to query the subgraph without authentication, making Goldsky endpoints ideal for agentic applications.
 
 **Prerequisites:**
 - Install Goldsky CLI: `curl https://goldsky.com | sh`
@@ -214,8 +219,6 @@ npm run deploy:goldsky:all
 # Update a tag to point to a new version (zero-downtime swap)
 goldsky subgraph tag create erc-8004-eth-sepolia/2.0.0 --tag prod --token $GOLDSKY_TOKEN
 ```
-
-**Goldsky-supported networks:** All networks except Hedera Testnet and SKALE Base Sepolia (see `goldsky.supported` in each network config).
 
 ## 📊 Overview
 

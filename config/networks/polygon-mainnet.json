@@ -12,11 +12,12 @@
   },
   "validationRegistry": {},
   "graphNode": {
+    "supported": true,
     "network": "matic"
   },
   "goldsky": {
     "supported": true,
-    "slug": "matic"
+    "network": "matic"
   }
 }
 
