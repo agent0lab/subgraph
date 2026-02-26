@@ -320,7 +320,6 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, t
     protocol.totalAgents = BIGINT_ZERO
     protocol.totalFeedback = BIGINT_ZERO
     protocol.totalValidations = BIGINT_ZERO
-    protocol.agents = []
     protocol.tags = []
     protocol.updatedAt = BIGINT_ZERO
   }
