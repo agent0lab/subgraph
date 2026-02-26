@@ -18,7 +18,7 @@ import {
   AgentMetadata,
   AgentRegistrationFile,
   Protocol,
-  GlobalStats
+  ProtocolStats
 } from "../generated/schema"
 import { getContractAddresses, getChainName, isSupportedChain } from "./contract-addresses"
 import { BIGINT_ZERO, BIGINT_ONE, ZERO_ADDRESS } from "./constants"
@@ -54,27 +54,6 @@ export function handleAgentRegistered(event: Registered): void {
   agent.save()
   
   updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp)
-  
-  // Update global stats - agent registration
-  let globalStats = GlobalStats.load("global")
-  if (globalStats == null) {
-    globalStats = new GlobalStats("global")
-    globalStats.totalAgents = BIGINT_ZERO
-    globalStats.totalFeedback = BIGINT_ZERO
-    globalStats.totalValidations = BIGINT_ZERO
-    globalStats.totalProtocols = BIGINT_ZERO
-    globalStats.agents = []
-    globalStats.tags = []
-  }
-  
-  globalStats.totalAgents = globalStats.totalAgents.plus(BIGINT_ONE)
-  
-  let currentGlobalAgents = globalStats.agents
-  currentGlobalAgents.push(agent.id)
-  globalStats.agents = currentGlobalAgents
-  
-  globalStats.updatedAt = event.block.timestamp
-  globalStats.save()
   
   // Registration file indexing: IPFS or base64 data URI
   if (event.params.agentURI.length > 0 && isIpfsUri(event.params.agentURI)) {
@@ -345,7 +324,6 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt): 
   let protocolId = Bytes.fromByteArray(ByteArray.fromBigInt(chainId))
   let protocol = Protocol.load(protocolId)
   
-  let isNewProtocol = false
   if (protocol == null) {
     protocol = new Protocol(protocolId)
     protocol.chainId = chainId
@@ -356,36 +334,29 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt): 
     protocol.reputationRegistry = addresses.reputationRegistry
     protocol.validationRegistry = addresses.validationRegistry
     
-    protocol.totalAgents = BIGINT_ZERO
-    protocol.totalFeedback = BIGINT_ZERO
-    protocol.totalValidations = BIGINT_ZERO
     protocol.tags = []
-    isNewProtocol = true
   }
-  
-  protocol.totalAgents = protocol.totalAgents.plus(BIGINT_ONE)
   
   // Trust models now come from registrationFile, not directly from Agent
   // Skip trust model update here since we can't access file entities from chain handlers
   
   protocol.updatedAt = timestamp
   protocol.save()
-  
-  if (isNewProtocol) {
-    let globalStats = GlobalStats.load("global")
-    if (globalStats == null) {
-      globalStats = new GlobalStats("global")
-      globalStats.totalAgents = BIGINT_ZERO
-      globalStats.totalFeedback = BIGINT_ZERO
-      globalStats.totalValidations = BIGINT_ZERO
-      globalStats.totalProtocols = BIGINT_ZERO
-      globalStats.agents = []
-      globalStats.tags = []
-    }
-    globalStats.totalProtocols = globalStats.totalProtocols.plus(BIGINT_ONE)
-    globalStats.updatedAt = timestamp
-    globalStats.save()
+
+  // Update protocol stats - agent registration
+  let protocolStats = ProtocolStats.load(protocolId)
+  if (protocolStats == null) {
+    protocolStats = new ProtocolStats(protocolId)
+    protocolStats.protocol = protocol.id
+    protocolStats.totalAgents = BIGINT_ZERO
+    protocolStats.totalFeedback = BIGINT_ZERO
+    protocolStats.totalValidations = BIGINT_ZERO
   }
+  
+  protocolStats.totalAgents = protocolStats.totalAgents.plus(BIGINT_ONE)
+  protocolStats.updatedAt = timestamp
+  protocolStats.save()
+
 }
 
 

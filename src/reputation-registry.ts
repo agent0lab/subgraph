@@ -14,7 +14,7 @@ import {
   FeedbackResponse,
   FeedbackFile,
   AgentStats,
-  GlobalStats,
+  ProtocolStats,
   Protocol
 } from "../generated/schema"
 import { getContractAddresses, getChainName, isSupportedChain } from "./contract-addresses"
@@ -115,37 +115,6 @@ export function handleNewFeedback(event: NewFeedback): void {
   
   // Update protocol stats
   updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp, feedback.tag1 ? feedback.tag1! : "", event.params.tag2)
-  
-  // Update global stats - feedback
-  let globalStats = GlobalStats.load("global")
-  if (globalStats == null) {
-    globalStats = new GlobalStats("global")
-    globalStats.totalAgents = BIGINT_ZERO
-    globalStats.totalFeedback = BIGINT_ZERO
-    globalStats.totalValidations = BIGINT_ZERO
-    globalStats.totalProtocols = BIGINT_ZERO
-    globalStats.agents = []
-    globalStats.tags = []
-    globalStats.updatedAt = BIGINT_ZERO
-  }
-  
-  globalStats.totalFeedback = globalStats.totalFeedback.plus(BIGINT_ONE)
-  
-  // Add tags to global tags array
-  let currentGlobalTags = globalStats.tags
-  
-  // Process tag1
-  if (feedback.tag1 && feedback.tag1!.length > 0 && !currentGlobalTags.includes(feedback.tag1!)) {
-    currentGlobalTags.push(feedback.tag1!)
-  }
-  // Process tag2
-  if (event.params.tag2.length > 0 && !currentGlobalTags.includes(event.params.tag2)) {
-    currentGlobalTags.push(event.params.tag2)
-  }
-  
-  globalStats.tags = currentGlobalTags
-  globalStats.updatedAt = event.block.timestamp
-  globalStats.save()
   
   log.info("New feedback for agent {}: value {} from {}", [
     agentEntityId.toString(),
@@ -317,14 +286,9 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, t
     protocol.validationRegistry = addresses.validationRegistry
     
     // Initialize all fields
-    protocol.totalAgents = BIGINT_ZERO
-    protocol.totalFeedback = BIGINT_ZERO
-    protocol.totalValidations = BIGINT_ZERO
     protocol.tags = []
     protocol.updatedAt = BIGINT_ZERO
   }
-  
-  protocol.totalFeedback = protocol.totalFeedback.plus(BIGINT_ONE)
   
   // Add tags to protocol tags array
   let currentTags = protocol.tags
@@ -341,4 +305,18 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, t
   protocol.tags = currentTags
   protocol.updatedAt = timestamp
   protocol.save()
+
+  // Update protocol stats - agent feedback
+  let protocolStats = ProtocolStats.load(protocolId)
+  if (protocolStats == null) {
+    protocolStats = new ProtocolStats(protocolId)
+    protocolStats.protocol = protocol.id
+    protocolStats.totalAgents = BIGINT_ZERO
+    protocolStats.totalFeedback = BIGINT_ZERO
+    protocolStats.totalValidations = BIGINT_ZERO
+  }
+  
+  protocolStats.totalFeedback = protocolStats.totalFeedback.plus(BIGINT_ONE)
+  protocolStats.updatedAt = timestamp
+  protocolStats.save()
 }

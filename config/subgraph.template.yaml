@@ -27,7 +27,7 @@ dataSources:
         - Agent
         - AgentMetadata
         - Protocol
-        - GlobalStats
+        - ProtocolStats
       abis:
         - name: IdentityRegistry
           file: ../../../abis/IdentityRegistry_Jan232026.json
@@ -63,7 +63,7 @@ dataSources:
         - Feedback
         - FeedbackResponse
         - AgentStats
-        - GlobalStats
+        - ProtocolStats
       abis:
         - name: ReputationRegistry
           file: ../../../abis/ReputationRegistry_Jan232026.json
@@ -90,7 +90,7 @@ dataSources:
   #       - Agent
   #       - Validation
   #       - AgentStats
-  #       - GlobalStats
+  #       - ProtocolStats
   #     abis:
   #       - name: ValidationRegistry
   #         file: ../../../abis/ValidationRegistry_Jan112026.json

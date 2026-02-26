@@ -205,7 +205,7 @@ The subgraph uses a **hybrid on-chain/off-chain architecture**:
 ```graphql
 type Agent @entity(immutable: false) {
   id: Bytes!                    # "chainId:agentId"
-  chainId: BigInt!           # Blockchain identifier
+  protocol: Protocol!           # Blockchain identifier
   agentId: BigInt!          # Agent ID on the chain
   agentURI: String          # Registration file URI
   agentURIType: String      # "ipfs", "https", "http", "unknown"
@@ -225,9 +225,11 @@ type Agent @entity(immutable: false) {
 #### Feedback Entity
 ```graphql
 type Feedback @entity(immutable: false) {
-  id: Bytes!                    # "chainId:agentId:clientAddress:index"
+  id: Bytes!
+  protocol: Protocol!
   agent: Agent!
   clientAddress: Bytes!      # Feedback author
+  feedbackIndex: BigInt!
   score: Int!                # 0-100 score
   tag1: String              # Primary category tag
   tag2: String              # Secondary category tag
@@ -273,7 +275,8 @@ enum ValidationStatus {
 #### AgentRegistrationFile
 ```graphql
 type AgentRegistrationFile @entity(immutable: true) {
-  id: Bytes!                    # Format: "transactionHash:cid"
+  id: Bytes!
+  txHash: Bytes!
   cid: String!               # IPFS CID (for querying by content)
   agentId: String!          # "chainId:agentId"
   name: String              # Agent display name
@@ -292,8 +295,11 @@ type AgentRegistrationFile @entity(immutable: true) {
   a2aSkills: [String!]!     # Available A2A skills
   ens: String               # ENS name
   did: String               # Decentralized identifier
-  agentWallet: Bytes        # Agent wallet address
-  agentWalletChainId: BigInt # Wallet chain ID
+  # Capabilities
+  mcpTools: [String!]!
+  mcpPrompts: [String!]!
+  mcpResources: [String!]!
+  a2aSkills: [String!]!
   createdAt: BigInt!
 }
 ```
@@ -301,7 +307,8 @@ type AgentRegistrationFile @entity(immutable: true) {
 #### FeedbackFile
 ```graphql
 type FeedbackFile @entity(immutable: true) {
-  id: Bytes!                    # Format: "transactionHash:cid"
+  id: Bytes!
+  txHash: Bytes!
   cid: String!               # IPFS CID (for querying by content)
   feedbackId: String!       # "chainId:agentId:clientAddress:index"
   text: String              # Detailed feedback text
@@ -325,7 +332,7 @@ type FeedbackFile @entity(immutable: true) {
 #### AgentStats
 ```graphql
 type AgentStats @entity(immutable: false) {
-  id: Bytes!                    # "chainId:agentId"
+  id: Bytes!
   agent: Agent!
   totalFeedback: BigInt!
   averageScore: BigDecimal!
@@ -347,25 +354,21 @@ type Protocol @entity(immutable: false) {
   identityRegistry: Bytes!
   reputationRegistry: Bytes!
   validationRegistry: Bytes!
-  totalAgents: BigInt!
-  totalFeedback: BigInt!
-  totalValidations: BigInt!
   agents: [Agent!]!
   tags: [String!]!
   updatedAt: BigInt!
 }
 ```
 
-#### GlobalStats
+#### ProtocolStats
 ```graphql
-type GlobalStats @entity(immutable: false) {
-  id: Bytes!                    # "global"
+type ProtocolStats @entity(immutable: false) {
+  id: Bytes!
+  protocol: Protocol!
   totalAgents: BigInt!
   totalFeedback: BigInt!
   totalValidations: BigInt!
-  totalProtocols: BigInt!
-  agents: [Agent!]!
-  tags: [String!]!
+
   updatedAt: BigInt!
 }
 ```
@@ -506,17 +509,20 @@ query FindAgentsByTrustModel($trustModel: String!) {
 }
 ```
 
-### Get Global Statistics
+### Get Protocol Statistics
 
 ```graphql
-query GetProtocolStats {
-  globalStats(id: "global") {
+query GetProtocolStats($protocolId: Bytes!) {
+  protocolStats(id: $protocolId) {
     totalAgents
     totalFeedback
     totalValidations
-    totalProtocols
-    tags
     updatedAt
+    protocol {
+      name
+      chainId
+      tags
+    }
   }
 }
 ```
@@ -616,7 +622,7 @@ See `examples/queries.graphql` for comprehensive query examples:
 - Complete agent profiles with relationships
 - MCP/A2A protocol filtering
 - Feedback analysis and search
-- Global statistics and analytics
+- Protocol statistics and analytics
 - Trust model filtering
 
 ## 📚 Additional Resources

@@ -16,11 +16,6 @@ type Protocol @entity(immutable: false) {
   reputationRegistry: Bytes!
   validationRegistry: Bytes!
   
-  # Total counts (symmetric with GlobalStats)
-  totalAgents: BigInt!
-  totalFeedback: BigInt!
-  totalValidations: BigInt!
-  
   # Search and discovery data (chain-specific)
   agents: [Agent!]! @derivedFrom(field: "protocol")
   tags: [String!]! # All unique tags on this chain
@@ -174,23 +169,14 @@ type AgentStats @entity(immutable: false) {
   updatedAt: BigInt!
 }
 
-# =============================================================================
-# GLOBAL STATISTICS
-# =============================================================================
-
-type GlobalStats @entity(immutable: false) {
-  id: ID! # "global"
+type ProtocolStats @entity(immutable: false) {
+  id: Bytes!
+  protocol: Protocol!
   
   # Total counts
   totalAgents: BigInt!
   totalFeedback: BigInt!
   totalValidations: BigInt!
-  totalProtocols: BigInt!
-  
-  # Search and discovery data
-  agents: [Agent!]!           # Array of all agents
-  tags: [String!]!           # All unique tags
-  
   
   # Timestamps
   updatedAt: BigInt!
