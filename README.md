@@ -9,7 +9,7 @@
 | Network | Chain ID | Status | The Graph | Goldsky |
 |---------|----------|--------|-----------|---------|
 | **Ethereum Mainnet** | 1 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/FV6RR6y13rsnCxBAicKuQEwDp8ioEGiNaWaZUmvr1F8k) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-eth-mainnet/1.0.1/gn) |
-| **Base Mainnet** | 8453 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-base-mainnet/1.0.1/gn) |
+| **Base Mainnet** | 8453 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/43s9hQRurMGjuYnC1r2ZwS6xSQktbFyXMPMqGKUFJojb) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-base-mainnet/1.0.2/gn) |
 | **BSC Mainnet** | 56 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/D6aWqowLkWqBgcqmpNKXuNikPkob24ADXCciiP8Hvn1K) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-bsc-mainnet/1.0.1/gn) |
 | **Polygon Mainnet** | 137 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/9q16PZv1JudvtnCAf44cBoxg82yK9SSsFvrjCY9xnneF) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-polygon-mainnet/1.0.1/gn) |
 | **Monad** | 143 | ✅ Deployed | [Endpoint](https://gateway.thegraph.com/api/subgraphs/id/4tvLxkczjhSaMiqRrCV1EyheYHyJ7Ad8jub1UUyukBjg) | [Endpoint](https://api.goldsky.com/api/public/project_cmm2akwq17hxv01u972qzekpv/subgraphs/erc-8004-monad-mainnet/1.0.1/gn) |
