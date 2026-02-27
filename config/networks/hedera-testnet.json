@@ -7,5 +7,10 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "hedera-testnet"
+  },
+  "grafting": {
+    "enabled": false,
+    "subgraphId": "",
+    "startBlock": 0
   }
 }

@@ -43,13 +43,25 @@ function main() {
   log(`Found ${deployments.length} deployments\n`, 'green');
 
   const results = [];
+  const skipped = []
 
   for (const deployment of deployments) {
     const manifestPath = path.join(OUTPUT_DIR, deployment, 'subgraph.yaml');
 
     if (!fs.existsSync(manifestPath)) {
       log(`⚠️  Skipping ${deployment}: no subgraph.yaml found`, 'yellow');
+      skipped.push({ deployment, message: "no subgraph.yaml found" })
       continue;
+    }
+
+    const manifestContent = fs.readFileSync(manifestPath, 'utf8');
+    const addressMissing = /address:\s*""/.test(manifestContent);
+    const startBlockMissing = /startBlock:\s*(\n|$)/.test(manifestContent);
+
+    if (addressMissing || startBlockMissing) {
+      log(`Skipping ${deployment}: missing source`);
+      skipped.push({ deployment, message: "missing source" })
+      continue
     }
 
     try {
@@ -88,6 +100,13 @@ function main() {
     log(`❌ Failed builds: ${failed.length}`, 'red');
     failed.forEach(r => {
       log(`   - ${r.deployment}`, 'red');
+    });
+  }
+
+  if (skipped.length > 0) {
+    log(`⚠️ Skipped builds: ${skipped.length}`, 'yellow');
+    skipped.forEach(r => {
+      log(`   - ${r.deployment}`, 'yellow');
     });
   }
 

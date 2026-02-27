@@ -7,5 +7,10 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "polygon-amoy"
+  },
+  "grafting": {
+    "enabled": false,
+    "subgraphId": "",
+    "startBlock": 0
   }
 }

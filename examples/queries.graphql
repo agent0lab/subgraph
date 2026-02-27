@@ -6,10 +6,10 @@
 # =============================================================================
 # Get all details including metadata, feedback, and responses for a specific agent
 
-query GetCompleteAgentDetails($agentId: ID!) {
-  agent(id: $agentId) {
+query GetCompleteAgentDetails($agentId: BigInt!) {
+  agents(where: {agentId: $agentId}) {
     id
-    chainId
+    protocol{chainId}
     agentId
     owner
     agentURI
@@ -21,7 +21,11 @@ query GetCompleteAgentDetails($agentId: ID!) {
     # Full metadata from IPFS registration file
     registrationFile {
       id
-      agentId
+      cid
+      agent{
+        agentId
+        agentWallet
+      }
       name
       description
       image
@@ -44,8 +48,6 @@ query GetCompleteAgentDetails($agentId: ID!) {
       # Identity
       ens
       did
-      agentWallet
-      agentWalletChainId
       
       createdAt
     }
@@ -57,11 +59,11 @@ query GetCompleteAgentDetails($agentId: ID!) {
       orderDirection: desc
     ) {
       id
-      score
+      value
       tag1
       tag2
       clientAddress
-      feedbackUri
+      feedbackURI
       feedbackURIType
       feedbackHash
       createdAt
@@ -70,11 +72,10 @@ query GetCompleteAgentDetails($agentId: ID!) {
       feedbackFile {
         id
         text
-        capability
-        name
-        skill
-        task
-        context
+        cid
+        a2aSkills
+        a2aTaskId
+        a2aContextId
         proofOfPaymentFromAddress
         proofOfPaymentToAddress
         proofOfPaymentChainId
@@ -120,7 +121,7 @@ query GetAllMCPAgents {
     orderDirection: desc
   ) {
     id
-    agentId
+    agent{agentId}
     name
     description
     image
@@ -153,7 +154,7 @@ query FindAgentsByCapability {
     orderDirection: desc
   ) {
     id
-    agentId
+    agent{agentId}
     name
     description
     image
@@ -174,18 +175,18 @@ query FindAgentsByCapability {
 # =============================================================================
 # Get all feedback with score greater than specified minimum
 
-query GetHighRatedFeedback($minScore: Int!) {
+query GetHighRatedFeedback($minScore: BigDecimal!) {
   feedbacks(
     where: { 
       isRevoked: false
-      score_gte: $minScore
+      value_gte: $minScore
     }
     first: 100
-    orderBy: score
+    orderBy: value
     orderDirection: desc
   ) {
     id
-    score
+    value
     tag1
     tag2
     createdAt
@@ -207,10 +208,10 @@ query GetHighRatedFeedback($minScore: Int!) {
     # Detailed feedback content
     feedbackFile {
       text
-      capability
-      skill
-      task
-      context
+      cid
+      a2aSkills
+      a2aTaskId
+      a2aContextId
     }
     
     # Responses
@@ -235,7 +236,7 @@ query GetFeedbackWithResponses {
     orderDirection: desc
   ) {
     id
-    score
+    value
     tag1
     tag2
     createdAt
@@ -261,8 +262,8 @@ query GetFeedbackWithResponses {
     # Feedback details
     feedbackFile {
       text
-      capability
-      skill
+      cid
+      a2aSkills
     }
     
     clientAddress
@@ -275,9 +276,9 @@ query GetFeedbackWithResponses {
 
 # Example 1: Complete agent profile for agent 374
 query GetAgent374Complete {
-  agent(id: "11155111:374") {
+  agents(where: {agentId: 374}) {
     id
-    chainId
+    protocol{chainId}
     agentId
     owner
     totalFeedback
@@ -298,13 +299,13 @@ query GetAgent374Complete {
       orderBy: createdAt
       orderDirection: desc
     ) {
-      score
+      value
       tag1
       tag2
       createdAt
       feedbackFile {
         text
-        capability
+        cid
       }
       responses {
         responder
@@ -320,7 +321,7 @@ query FindAllActiveMCPAgents {
     where: { mcpEndpoint_not: null, active: true }
     first: 50
   ) {
-    agentId
+    agent{agentId}
     name
     description
     mcpEndpoint
@@ -332,12 +333,12 @@ query FindAllActiveMCPAgents {
 # Example 3: Get feedback scoring 80+ across all agents
 query GetExcellentFeedback {
   feedbacks(
-    where: { score_gte: 80, isRevoked: false }
+    where: { value_gte: 80, isRevoked: false }
     first: 50
-    orderBy: score
+    orderBy: value
     orderDirection: desc
   ) {
-    score
+    value
     agent {
       registrationFile {
         name
@@ -345,7 +346,7 @@ query GetExcellentFeedback {
     }
     feedbackFile {
       text
-      capability
+      cid
     }
     clientAddress
     createdAt
@@ -374,27 +375,15 @@ query GetAgentsWithStats {
 # HELPER QUERIES
 # =============================================================================
 
-# Get protocol-wide statistics
+# Get protocol-wide statistics (specific chain)
 query GetProtocolStats {
-  globalStats(id: "global") {
-    totalAgents
-    totalFeedback
-    totalValidations
-    totalProtocols
+  protocols {
     tags
-    updatedAt
   }
-}
-
-# Get specific chain statistics (Sepolia)
-query GetSepoliaStats {
-  protocol(id: "11155111") {
-    id
-    name
+  protocolStats_collection {
     totalAgents
     totalFeedback
     totalValidations
-    tags
     updatedAt
   }
 }
@@ -406,7 +395,7 @@ query SearchAgentsByName($searchTerm: String!) {
     first: 50
   ) {
     id
-    agentId
+    agent{agentId}
     name
     description
     image
@@ -420,7 +409,7 @@ query FindAgentsByTrustModel($trustModel: String!) {
     first: 50
   ) {
     id
-    agentId
+    agent{agentId}
     name
     description
     supportedTrusts
