@@ -378,10 +378,10 @@ type ProtocolStats @entity(immutable: false) {
 ### Get Complete Agent Profile
 
 ```graphql
-query GetCompleteAgentDetails($agentId: Bytes!) {
-  agent(id: $agentId) {
+query GetCompleteAgentDetails($agentId: BigInt!) {
+  agents(where: {agentId: $agentId}) {
     id
-    chainId
+    protocol{chainId}
     agentId
     owner
     agentURI
@@ -405,22 +405,21 @@ query GetCompleteAgentDetails($agentId: Bytes!) {
       a2aSkills
       ens
       did
-      agentWallet
-      agentWalletChainId
+      agent{agentWallet}
     }
     
     feedback(where: { isRevoked: false }, first: 10) {
-      score
+      value
       tag1
       tag2
       clientAddress
       createdAt
       feedbackFile {
         text
-        capability
-        skill
-        task
-        context
+        cid
+        a2aSkills
+        a2aTaskId
+        a2aContextId
       }
       responses {
         responder
@@ -448,7 +447,7 @@ query GetAllMCPAgents {
     first: 100
   ) {
     id
-    agentId
+    agent{agentId}
     name
     description
     mcpEndpoint
@@ -462,15 +461,15 @@ query GetAllMCPAgents {
 ### Search for High-Rated Feedback
 
 ```graphql
-query GetHighRatedFeedback($minScore: Int!) {
+query GetHighRatedFeedback($minScore: BigDecimal!) {
   feedbacks(
-    where: { isRevoked: false, score_gte: $minScore }
+    where: { isRevoked: false, value_gte: $minScore }
     first: 100
-    orderBy: score
+    orderBy: value
     orderDirection: desc
   ) {
     id
-    score
+    value
     tag1
     tag2
     agent {
@@ -482,8 +481,8 @@ query GetHighRatedFeedback($minScore: Int!) {
     }
     feedbackFile {
       text
-      capability
-      skill
+      cid
+      a2aSkills
     }
     responses {
       responder
@@ -501,7 +500,7 @@ query FindAgentsByTrustModel($trustModel: String!) {
     where: { supportedTrusts_contains: [$trustModel], active: true }
     first: 50
   ) {
-    agentId
+    agent{agentId}
     name
     description
     supportedTrusts
@@ -512,17 +511,15 @@ query FindAgentsByTrustModel($trustModel: String!) {
 ### Get Protocol Statistics
 
 ```graphql
-query GetProtocolStats($protocolId: Bytes!) {
-  protocolStats(id: $protocolId) {
+query GetProtocolStats {
+  protocols {
+    tags
+  }
+  protocolStats_collection {
     totalAgents
     totalFeedback
     totalValidations
     updatedAt
-    protocol {
-      name
-      chainId
-      tags
-    }
   }
 }
 ```

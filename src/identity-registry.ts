@@ -84,7 +84,7 @@ export function handleAgentRegistered(event: Registered): void {
     let registration = new AgentRegistrationFile(fileId)
     registration.txHash = event.transaction.hash
     registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
-    registration.agentId = agentEntityId.toString()
+    registration.agent = agentEntityId
     registration.createdAt = event.block.timestamp
     registration.supportedTrusts = []
     registration.mcpTools = []
@@ -206,7 +206,7 @@ export function handleUriUpdated(event: URIUpdated): void {
     let registration = new AgentRegistrationFile(fileId)
     registration.txHash = event.transaction.hash
     registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
-    registration.agentId = agentEntityId.toString()
+    registration.agent = agentEntityId
     registration.createdAt = event.block.timestamp
     registration.supportedTrusts = []
     registration.mcpTools = []

@@ -172,6 +172,7 @@ export function handleResponseAppended(event: ResponseAppended): void {
   let responseId = Bytes.fromUTF8(`${feedbackId.toString()}:${event.transaction.hash.toHexString()}:${event.logIndex.toString()}`)
   let response = new FeedbackResponse(responseId)
   response.feedback = feedbackId
+  response.txHash = event.transaction.hash
   response.responseIndex = event.logIndex
   response.responder = responder
   response.responseUri = event.params.responseURI

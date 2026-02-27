@@ -1,5 +1,5 @@
 import { Bytes, dataSource, log } from '@graphprotocol/graph-ts'
-import { AgentRegistrationFile, Agent } from '../generated/schema'
+import { AgentRegistrationFile } from '../generated/schema'
 import { populateRegistrationFromJsonBytes } from './utils/registration-parser'
 
 export function parseRegistrationFile(content: Bytes): void {
@@ -17,7 +17,7 @@ export function parseRegistrationFile(content: Bytes): void {
   let metadata = new AgentRegistrationFile(fileId)
   metadata.txHash = Bytes.fromUTF8(txHash)
   metadata.cid = cid
-  metadata.agentId = agentId
+  metadata.agent = Bytes.fromUTF8(agentId)
   metadata.createdAt = context.getBigInt('timestamp')
   metadata.supportedTrusts = []
   metadata.mcpTools = []

@@ -1,4 +1,4 @@
-import { Bytes, dataSource, json, log, BigInt, JSONValueKind, TypedMap, JSONValue } from '@graphprotocol/graph-ts'
+import { Bytes, dataSource, json, log, ByteArray, JSONValueKind, TypedMap, JSONValue } from '@graphprotocol/graph-ts'
 import { FeedbackFile, Feedback } from '../generated/schema'
 
 function parseStringArray(obj: TypedMap<string, JSONValue>, key: string): string[] | null {
@@ -39,7 +39,7 @@ export function parseFeedbackFile(content: Bytes): void {
   let feedbackFile = new FeedbackFile(fileId)
   feedbackFile.txHash = Bytes.fromUTF8(txHash)
   feedbackFile.cid = cid
-  feedbackFile.feedbackId = feedbackId
+  feedbackFile.feedback = Bytes.fromUTF8(feedbackId)
   feedbackFile.createdAt = context.getBigInt('timestamp')
   feedbackFile.a2aSkills = []
   feedbackFile.oasfSkills = []
@@ -72,7 +72,7 @@ export function parseFeedbackFile(content: Bytes): void {
   if (agentRegistry != null) feedbackFile.agentRegistry = agentRegistry.toString()
 
   let agentId = getValue(obj, 'agentId', JSONValueKind.NUMBER)
-  if (agentId != null) feedbackFile.agentId = agentId.toBigInt()
+  if (agentId != null) feedbackFile.agent = Bytes.fromByteArray(ByteArray.fromBigInt(agentId.toBigInt()))
 
   let clientAddress = getValue(obj, 'clientAddress', JSONValueKind.STRING)
   if (clientAddress != null) feedbackFile.clientAddress = clientAddress.toString()

@@ -6,7 +6,7 @@
 # =============================================================================
 
 type Protocol @entity(immutable: false) {
-  id: Bytes!
+  id: Bytes! # Format: "chainId"
 
   chainId: BigInt!
   name: String!
@@ -26,7 +26,7 @@ type Protocol @entity(immutable: false) {
 
 type Agent @entity(immutable: false) {
   # Primary identifiers
-  id: Bytes!
+  id: Bytes! # Format: "chainId:agentId"
 
   # Relationships
   protocol: Protocol!
@@ -60,7 +60,7 @@ type Agent @entity(immutable: false) {
 
 type Feedback @entity(immutable: false) {
   # Primary identifier
-  id: Bytes!
+  id: Bytes! # Format: "agentId:clientAddress:feedbackIndex"
   
   # Relationships
   protocol: Protocol!
@@ -90,10 +90,11 @@ type Feedback @entity(immutable: false) {
 }
 
 type FeedbackResponse @entity(immutable: true) {
-  id: Bytes!
+  id: Bytes! # Format: "feedbackId:txHash:responseIndex"
 
   # Relationships
   feedback: Feedback!
+  txHash: Bytes!
   responseIndex: BigInt!
 
   responder: Bytes!
@@ -104,7 +105,7 @@ type FeedbackResponse @entity(immutable: true) {
 
 type Validation @entity(immutable: false) {
   # Primary identifier
-  id: Bytes!
+  id: Bytes! # Format: "requestHash"
   
   # Relationships
   agent: Agent!
@@ -125,7 +126,7 @@ type Validation @entity(immutable: false) {
 }
 
 type AgentMetadata @entity(immutable: false) {
-  id: Bytes!
+  id: Bytes! # Format: "chainId:agentId:key"
 
   # Relationships
   protocol: Protocol!
@@ -151,7 +152,7 @@ enum ValidationStatus {
 # =============================================================================
 
 type AgentStats @entity(immutable: false) {
-  id: Bytes!
+  id: Bytes! # Format: "agentId"
   agent: Agent!
   
   # Feedback statistics
@@ -170,7 +171,7 @@ type AgentStats @entity(immutable: false) {
 }
 
 type ProtocolStats @entity(immutable: false) {
-  id: Bytes!
+  id: Bytes! # Format: "protocolId"
   protocol: Protocol!
   
   # Total counts
@@ -187,13 +188,13 @@ type ProtocolStats @entity(immutable: false) {
 # =============================================================================
 
 type AgentRegistrationFile @entity(immutable: true) {
-  id: Bytes!
+  id: Bytes! # Format: "txHash:cid"
 
   txHash: Bytes!
   cid: String! # IPFS CID (for querying by content)
   
   # Agent link (passed via context)
-  agentId: String! # Format: "chainId:agentId"
+  agent: Agent!
   
   # IPFS file data
   name: String
@@ -232,17 +233,17 @@ type AgentRegistrationFile @entity(immutable: true) {
 }
 
 type FeedbackFile @entity(immutable: true) {
-  id: Bytes!
+  id: Bytes! # Format: "tx:cid"
   
   txHash: Bytes!
   cid: String! # IPFS CID (for querying by content)
   
   # Feedback link (passed via context)
-  feedbackId: String! # Format: "chainId:agentId:clientAddress:feedbackIndex"
+  feedback: Feedback!
   
   # ERC-8004 off-chain feedback envelope (spec)
   agentRegistry: String
-  agentId: BigInt
+  agent: Agent
   clientAddress: String
   createdAtIso: String
   valueRaw: BigInt
