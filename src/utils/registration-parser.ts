@@ -140,12 +140,41 @@ export function populateRegistrationFromJsonBytes(metadata: AgentRegistrationFil
   if (image && !image.isNull() && image.kind == JSONValueKind.STRING) metadata.image = image.toString()
 
   let active = obj.get("active")
-  if (active && !active.isNull()) metadata.active = active.toBool()
+  if (active && !active.isNull()) {
+    if (active.kind == JSONValueKind.BOOL) {
+      metadata.active = active.toBool()
+    } else {
+      log.warning("Registration 'active' is not a boolean for AgentRegistrationFile {} (kind={})", [
+        metadata.id,
+        active.kind.toString(),
+      ])
+    }
+  }
 
   // ERC-8004 uses x402Support (camelCase). Keep fallback to x402support.
   let x402Support = obj.get("x402Support")
   if (x402Support == null || x402Support.isNull()) x402Support = obj.get("x402support")
-  if (x402Support && !x402Support.isNull()) metadata.x402Support = x402Support.toBool()
+  if (x402Support && !x402Support.isNull()) {
+    if (x402Support.kind == JSONValueKind.BOOL) {
+      metadata.x402Support = x402Support.toBool()
+    } else if (x402Support.kind == JSONValueKind.OBJECT) {
+      // Accept extended shape: { "enabled": <bool> }.
+      let x402Obj = x402Support.toObject()
+      if (x402Obj != null) {
+        let enabled = x402Obj.get("enabled")
+        if (enabled && !enabled.isNull() && enabled.kind == JSONValueKind.BOOL) {
+          metadata.x402Support = enabled.toBool()
+        } else {
+          log.warning("Registration 'x402Support.enabled' is not a boolean for AgentRegistrationFile {}", [metadata.id])
+        }
+      }
+    } else {
+      log.warning("Registration 'x402Support' has unsupported JSON kind for AgentRegistrationFile {} (kind={})", [
+        metadata.id,
+        x402Support.kind.toString(),
+      ])
+    }
+  }
 
   let supportedTrusts = obj.get("supportedTrusts")
   if (supportedTrusts == null || supportedTrusts.isNull()) supportedTrusts = obj.get("supportedTrust")
