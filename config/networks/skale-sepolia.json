@@ -7,5 +7,10 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "skale-base-sepolia-testnet"
+  },
+  "grafting": {
+    "enabled": false,
+    "subgraphId": "",
+    "startBlock": 0
   }
 }

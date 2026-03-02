@@ -13,5 +13,10 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "base-sepolia"
+  },
+  "grafting": {
+    "enabled": false,
+    "subgraphId": "",
+    "startBlock": 0
   }
 }

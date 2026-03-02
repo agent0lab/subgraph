@@ -1,4 +1,5 @@
 import { Bytes, log } from "@graphprotocol/graph-ts"
+import { ZERO_BYTES32 } from "../constants"
 
 // =============================================================================
 // CENTRALIZED IPFS UTILITIES
@@ -12,7 +13,7 @@ export function bytes32ToString(bytes: Bytes): string {
   let hex = bytes.toHexString()
   
   // If all zeros, return empty string
-  if (hex == "0x0000000000000000000000000000000000000000000000000000000000000000") {
+  if (hex == ZERO_BYTES32) {
     return ""
   }
   

@@ -1,6 +1,15 @@
-specVersion: 0.0.5
+specVersion: 1.3.0
 schema:
   file: ../../../schema.graphql
+indexerHints:
+  prune: auto
+{{#grafting.enabled}}
+features:
+  - grafting
+graft:
+  base: {{ grafting.subgraphId }} # Subgraph ID of base subgraph
+  block: {{ grafting.startBlock }} # Block number
+{{/grafting.enabled}}
 dataSources:
   # Identity Registry
   - kind: ethereum
@@ -18,7 +27,7 @@ dataSources:
         - Agent
         - AgentMetadata
         - Protocol
-        - GlobalStats
+        - ProtocolStats
       abis:
         - name: IdentityRegistry
           file: ../../../abis/IdentityRegistry_Jan232026.json
@@ -54,7 +63,7 @@ dataSources:
         - Feedback
         - FeedbackResponse
         - AgentStats
-        - GlobalStats
+        - ProtocolStats
       abis:
         - name: ReputationRegistry
           file: ../../../abis/ReputationRegistry_Jan232026.json
@@ -81,7 +90,7 @@ dataSources:
   #       - Agent
   #       - Validation
   #       - AgentStats
-  #       - GlobalStats
+  #       - ProtocolStats
   #     abis:
   #       - name: ValidationRegistry
   #         file: ../../../abis/ValidationRegistry_Jan112026.json

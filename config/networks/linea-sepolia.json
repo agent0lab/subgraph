@@ -7,5 +7,10 @@
   "validationRegistry": {},
   "graphNode": {
     "network": "linea-sepolia"
+  },
+  "grafting": {
+    "enabled": false,
+    "subgraphId": "",
+    "startBlock": 0
   }
 }

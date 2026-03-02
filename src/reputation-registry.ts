@@ -1,4 +1,5 @@
-import { BigInt, Bytes, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
+import { BigInt, Bytes, ByteArray, ethereum, log, BigDecimal, DataSourceContext } from "@graphprotocol/graph-ts"
+import { BIGINT_ZERO, BIGINT_ONE } from "./constants"
 import { getChainId } from "./utils/chain"
 import { isIpfsUri, extractIpfsHash, determineUriType, logIpfsExtraction } from "./utils/ipfs"
 import {
@@ -13,7 +14,7 @@ import {
   FeedbackResponse,
   FeedbackFile,
   AgentStats,
-  GlobalStats,
+  ProtocolStats,
   Protocol
 } from "../generated/schema"
 import { getContractAddresses, getChainName, isSupportedChain } from "./contract-addresses"
@@ -44,18 +45,19 @@ export function handleNewFeedback(event: NewFeedback): void {
   let clientAddress = event.params.clientAddress
   let feedbackIndex = event.params.feedbackIndex
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${agentId.toString()}`)
   
   // Load agent
   let agent = Agent.load(agentEntityId)
   if (agent == null) {
-    log.warning("Feedback for unknown agent: {}", [agentEntityId])
+    log.warning("Feedback for unknown agent: {}", [agentEntityId.toString()])
     return
   }
   
   // Create feedback entity
-  let feedbackId = `${agentEntityId}:${clientAddress.toHexString()}:${feedbackIndex.toString()}`
+  let feedbackId = Bytes.fromUTF8(`${agentEntityId.toString()}:${clientAddress.toHexString()}:${feedbackIndex.toString()}`)
   let feedback = new Feedback(feedbackId)
+  feedback.protocol = Bytes.fromI32(chainId)
   feedback.agent = agentEntityId
   feedback.clientAddress = clientAddress
   feedback.feedbackIndex = feedbackIndex
@@ -88,10 +90,10 @@ export function handleNewFeedback(event: NewFeedback): void {
     logIpfsExtraction("feedback", event.params.feedbackURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
-      let fileId = `${txHash}:${ipfsHash}`
+      let fileId = Bytes.fromUTF8(`${txHash}:${ipfsHash}`)
       
       let context = new DataSourceContext()
-      context.setString('feedbackId', feedbackId)
+      context.setString('feedbackId', feedbackId.toString())
       context.setString('cid', ipfsHash)
       context.setString('txHash', txHash)
       context.setBigInt('timestamp', event.block.timestamp)
@@ -102,7 +104,7 @@ export function handleNewFeedback(event: NewFeedback): void {
       // Set the connection to the composite ID
       feedback.feedbackFile = fileId
       feedback.save()
-      log.info("Set feedbackFile connection for feedback {} to ID: {}", [feedbackId, fileId])
+      log.info("Set feedbackFile connection for feedback {} to ID: {}", [feedbackId.toString(), fileId.toString()])
     }
   }
   
@@ -114,39 +116,8 @@ export function handleNewFeedback(event: NewFeedback): void {
   // Update protocol stats
   updateProtocolStats(BigInt.fromI32(chainId), agent, event.block.timestamp, feedback.tag1 ? feedback.tag1! : "", event.params.tag2)
   
-  // Update global stats - feedback
-  let globalStats = GlobalStats.load("global")
-  if (globalStats == null) {
-    globalStats = new GlobalStats("global")
-    globalStats.totalAgents = BigInt.fromI32(0)
-    globalStats.totalFeedback = BigInt.fromI32(0)
-    globalStats.totalValidations = BigInt.fromI32(0)
-    globalStats.totalProtocols = BigInt.fromI32(0)
-    globalStats.agents = []
-    globalStats.tags = []
-    globalStats.updatedAt = BigInt.fromI32(0)
-  }
-  
-  globalStats.totalFeedback = globalStats.totalFeedback.plus(BigInt.fromI32(1))
-  
-  // Add tags to global tags array
-  let currentGlobalTags = globalStats.tags
-  
-  // Process tag1
-  if (feedback.tag1 && feedback.tag1!.length > 0 && !currentGlobalTags.includes(feedback.tag1!)) {
-    currentGlobalTags.push(feedback.tag1!)
-  }
-  // Process tag2
-  if (event.params.tag2.length > 0 && !currentGlobalTags.includes(event.params.tag2)) {
-    currentGlobalTags.push(event.params.tag2)
-  }
-  
-  globalStats.tags = currentGlobalTags
-  globalStats.updatedAt = event.block.timestamp
-  globalStats.save()
-  
   log.info("New feedback for agent {}: value {} from {}", [
-    agentEntityId,
+    agentEntityId.toString(),
     feedbackValue.toString(),
     clientAddress.toHexString()
   ])
@@ -157,10 +128,10 @@ export function handleFeedbackRevoked(event: FeedbackRevoked): void {
   let clientAddress = event.params.clientAddress
   let feedbackIndex = event.params.feedbackIndex
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${agentId.toString()}`)
   
   // Find and revoke feedback
-  let feedbackId = `${agentEntityId}:${clientAddress.toHexString()}:${feedbackIndex.toString()}`
+  let feedbackId = Bytes.fromUTF8(`${agentEntityId.toString()}:${clientAddress.toHexString()}:${feedbackIndex.toString()}`)
   let feedback = Feedback.load(feedbackId)
   
   if (feedback != null) {
@@ -174,9 +145,9 @@ export function handleFeedbackRevoked(event: FeedbackRevoked): void {
       updateAgentStatsAfterRevocation(agent, feedback.value, event.block.timestamp)
     }
     
-    log.info("Feedback revoked for agent {}: {}", [agentEntityId, feedbackId])
+    log.info("Feedback revoked for agent {}: {}", [agentEntityId.toString(), feedbackId.toString()])
   } else {
-    log.warning("Attempted to revoke unknown feedback: {}", [feedbackId])
+    log.warning("Attempted to revoke unknown feedback: {}", [feedbackId.toString()])
   }
 }
 
@@ -186,28 +157,30 @@ export function handleResponseAppended(event: ResponseAppended): void {
   let feedbackIndex = event.params.feedbackIndex
   let responder = event.params.responder
   let chainId = getChainId()
-  let agentEntityId = `${chainId.toString()}:${agentId.toString()}`
+  let agentEntityId = Bytes.fromUTF8(`${chainId.toString()}:${agentId.toString()}`)
   
   // Find feedback
-  let feedbackId = `${agentEntityId}:${clientAddress.toHexString()}:${feedbackIndex.toString()}`
+  let feedbackId = Bytes.fromUTF8(`${agentEntityId.toString()}:${clientAddress.toHexString()}:${feedbackIndex.toString()}`)
   let feedback = Feedback.load(feedbackId)
   
   if (feedback == null) {
-    log.warning("Response for unknown feedback: {}", [feedbackId])
+    log.warning("Response for unknown feedback: {}", [feedbackId.toString()])
     return
   }
   
   // Create response entity
-  let responseId = `${feedbackId}:${event.transaction.hash.toHexString()}:${event.logIndex.toString()}`
+  let responseId = Bytes.fromUTF8(`${feedbackId.toString()}:${event.transaction.hash.toHexString()}:${event.logIndex.toString()}`)
   let response = new FeedbackResponse(responseId)
   response.feedback = feedbackId
+  response.txHash = event.transaction.hash
+  response.responseIndex = event.logIndex
   response.responder = responder
   response.responseUri = event.params.responseURI
   response.responseHash = event.params.responseHash
   response.createdAt = event.block.timestamp
   response.save()
   
-  log.info("Response appended to feedback {}: {}", [feedbackId, responseId])
+  log.info("Response appended to feedback {}: {}", [feedbackId.toString(), responseId.toString()])
 }
 
 // =============================================================================
@@ -216,7 +189,7 @@ export function handleResponseAppended(event: ResponseAppended): void {
 
 function updateAgentStats(agent: Agent, value: BigDecimal, timestamp: BigInt): void {
   // Update total feedback count
-  agent.totalFeedback = agent.totalFeedback.plus(BigInt.fromI32(1))
+  agent.totalFeedback = agent.totalFeedback.plus(BIGINT_ONE)
   
   // Update last activity
   agent.lastActivity = timestamp
@@ -230,20 +203,20 @@ function updateAgentStats(agent: Agent, value: BigDecimal, timestamp: BigInt): v
   if (stats == null) {
     stats = new AgentStats(statsId)
     stats.agent = agent.id
-    stats.totalFeedback = BigInt.fromI32(0)
+    stats.totalFeedback = BIGINT_ZERO
     stats.averageFeedbackValue = BigDecimal.fromString("0")
-    stats.totalValidations = BigInt.fromI32(0)
-    stats.completedValidations = BigInt.fromI32(0)
+    stats.totalValidations = BIGINT_ZERO
+    stats.completedValidations = BIGINT_ZERO
     stats.averageValidationScore = BigDecimal.fromString("0")
     stats.lastActivity = timestamp
   }
   
   // Update feedback stats
-  stats.totalFeedback = stats.totalFeedback.plus(BigInt.fromI32(1))
+  stats.totalFeedback = stats.totalFeedback.plus(BIGINT_ONE)
   
   // Update average feedback value
   let n = stats.totalFeedback
-  let nMinus1 = n.minus(BigInt.fromI32(1))
+  let nMinus1 = n.minus(BIGINT_ONE)
   let total = stats.averageFeedbackValue.times(BigDecimal.fromString(nMinus1.toString()))
   let newTotal = total.plus(value)
   stats.averageFeedbackValue = newTotal.div(BigDecimal.fromString(n.toString()))
@@ -255,8 +228,8 @@ function updateAgentStats(agent: Agent, value: BigDecimal, timestamp: BigInt): v
 
 function updateAgentStatsAfterRevocation(agent: Agent, revokedValue: BigDecimal, timestamp: BigInt): void {
   // Update total feedback count
-  if (agent.totalFeedback.gt(BigInt.fromI32(0))) {
-    agent.totalFeedback = agent.totalFeedback.minus(BigInt.fromI32(1))
+  if (agent.totalFeedback.gt(BIGINT_ZERO)) {
+    agent.totalFeedback = agent.totalFeedback.minus(BIGINT_ONE)
   }
   
   // Note: Agent does not track averages - only AgentStats does
@@ -268,12 +241,12 @@ function updateAgentStatsAfterRevocation(agent: Agent, revokedValue: BigDecimal,
   let stats = AgentStats.load(agent.id)
   if (stats != null) {
     let nOld = stats.totalFeedback
-    if (nOld.gt(BigInt.fromI32(0))) {
+    if (nOld.gt(BIGINT_ZERO)) {
       let totalOld = stats.averageFeedbackValue.times(BigDecimal.fromString(nOld.toString()))
-      let nNew = nOld.minus(BigInt.fromI32(1))
+      let nNew = nOld.minus(BIGINT_ONE)
       stats.totalFeedback = nNew
 
-      if (nNew.equals(BigInt.fromI32(0))) {
+      if (nNew.equals(BIGINT_ZERO)) {
         stats.averageFeedbackValue = BigDecimal.fromString("0")
       } else {
         let totalNew = totalOld.minus(revokedValue)
@@ -299,7 +272,7 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, t
     return
   }
 
-  let protocolId = chainId.toString()
+  let protocolId = Bytes.fromByteArray(ByteArray.fromBigInt(chainId))
   let protocol = Protocol.load(protocolId)
   
   if (protocol == null) {
@@ -314,15 +287,9 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, t
     protocol.validationRegistry = addresses.validationRegistry
     
     // Initialize all fields
-    protocol.totalAgents = BigInt.fromI32(0)
-    protocol.totalFeedback = BigInt.fromI32(0)
-    protocol.totalValidations = BigInt.fromI32(0)
-    protocol.agents = []
     protocol.tags = []
-    protocol.updatedAt = BigInt.fromI32(0)
+    protocol.updatedAt = BIGINT_ZERO
   }
-  
-  protocol.totalFeedback = protocol.totalFeedback.plus(BigInt.fromI32(1))
   
   // Add tags to protocol tags array
   let currentTags = protocol.tags
@@ -339,4 +306,18 @@ function updateProtocolStats(chainId: BigInt, agent: Agent, timestamp: BigInt, t
   protocol.tags = currentTags
   protocol.updatedAt = timestamp
   protocol.save()
+
+  // Update protocol stats - agent feedback
+  let protocolStats = ProtocolStats.load(protocolId)
+  if (protocolStats == null) {
+    protocolStats = new ProtocolStats(protocolId)
+    protocolStats.protocol = protocol.id
+    protocolStats.totalAgents = BIGINT_ZERO
+    protocolStats.totalFeedback = BIGINT_ZERO
+    protocolStats.totalValidations = BIGINT_ZERO
+  }
+  
+  protocolStats.totalFeedback = protocolStats.totalFeedback.plus(BIGINT_ONE)
+  protocolStats.updatedAt = timestamp
+  protocolStats.save()
 }

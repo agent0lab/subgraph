@@ -117,13 +117,13 @@ export function populateRegistrationFromJsonBytes(metadata: AgentRegistrationFil
 
   let result = json.try_fromBytes(content)
   if (result.isError) {
-    log.error("Failed to parse JSON registration content for AgentRegistrationFile {}", [metadata.id])
+    log.error("Failed to parse JSON registration content for AgentRegistrationFile {}", [metadata.id.toString()])
     return
   }
 
   let value = result.value
   if (value.kind != JSONValueKind.OBJECT) {
-    log.error("Registration JSON is not an object for AgentRegistrationFile {}", [metadata.id])
+    log.error("Registration JSON is not an object for AgentRegistrationFile {}", [metadata.id.toString()])
     return
   }
 

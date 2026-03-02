@@ -1,5 +1,5 @@
 import { Bytes, dataSource, log } from '@graphprotocol/graph-ts'
-import { AgentRegistrationFile, Agent } from '../generated/schema'
+import { AgentRegistrationFile } from '../generated/schema'
 import { populateRegistrationFromJsonBytes } from './utils/registration-parser'
 
 export function parseRegistrationFile(content: Bytes): void {
@@ -9,14 +9,15 @@ export function parseRegistrationFile(content: Bytes): void {
   let txHash = context.getString('txHash')
   
   // Create composite ID: transactionHash:cid
-  let fileId = `${txHash}:${cid}`
+  let fileId = Bytes.fromUTF8(`${txHash}:${cid}`)
   
-  log.info("Parsing registration file for agent: {}, CID: {}, fileId: {}", [agentId, cid, fileId])
+  log.info("Parsing registration file for agent: {}, CID: {}, fileId: {}", [agentId, cid, fileId.toString()])
   
   // Create registration file with composite ID
   let metadata = new AgentRegistrationFile(fileId)
+  metadata.txHash = Bytes.fromUTF8(txHash)
   metadata.cid = cid
-  metadata.agentId = agentId
+  metadata.agent = Bytes.fromUTF8(agentId)
   metadata.createdAt = context.getBigInt('timestamp')
   metadata.supportedTrusts = []
   metadata.mcpTools = []
@@ -35,7 +36,7 @@ export function parseRegistrationFile(content: Bytes): void {
   metadata.save()
   
   log.info("Successfully parsed registration file for fileId: {}, CID: {}, name: {}, description: {}", [
-    fileId,
+    fileId.toString(),
     cid,
     metadata.name ? metadata.name! : "null",
     metadata.description ? metadata.description! : "null"
