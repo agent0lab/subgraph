@@ -1,23 +1,22 @@
 {
-  "network": "bsc-testnet",
-  "chainId": "97",
-  "displayName": "BSC Testnet",
+  "network": "skale-base-mainnet",
+  "chainId": "1187947933",
+  "displayName": "SKALE Base Mainnet",
   "identityRegistry": {
     "address": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
-    "startBlock": 78270834
+    "startBlock": 689195
   },
   "reputationRegistry": {
     "address": "0x8004B663056A597Dffe9eCcC1965A193B7388713",
-    "startBlock": 77785485
+    "startBlock": 689195
   },
   "validationRegistry": {},
   "graphNode": {
-    "supported": true,
-    "network": "chapel"
+    "supported": false,
+    "network": "skale-base"
   },
   "goldsky": {
     "supported": true,
-    "network": "chapel"
+    "netowrk": "skale-base"
   }
 }
-

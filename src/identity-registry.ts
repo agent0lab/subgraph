@@ -91,17 +91,20 @@ export function handleAgentRegistered(event: Registered): void {
     let b64 = extractBase64PayloadFromDataUri(event.params.agentURI)
     let decoded = base64DecodeToBytes(b64)
 
-    let registration = new AgentRegistrationFile(fileId)
-    registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
-    registration.agentId = agentEntityId
-    registration.createdAt = event.block.timestamp
-    registration.supportedTrusts = []
-    registration.mcpTools = []
-    registration.mcpPrompts = []
-    registration.mcpResources = []
-    registration.a2aSkills = []
-    registration.oasfSkills = []
-    registration.oasfDomains = []
+    let registration = AgentRegistrationFile.load(fileId)
+    if (registration == null) {
+      registration = new AgentRegistrationFile(fileId)
+      registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
+      registration.agentId = agentEntityId
+      registration.createdAt = event.block.timestamp
+      registration.supportedTrusts = []
+      registration.mcpTools = []
+      registration.mcpPrompts = []
+      registration.mcpResources = []
+      registration.a2aSkills = []
+      registration.oasfSkills = []
+      registration.oasfDomains = []
+    }
 
     populateRegistrationFromJsonBytes(registration, decoded)
     registration.save()
@@ -211,17 +214,20 @@ export function handleUriUpdated(event: URIUpdated): void {
     let b64 = extractBase64PayloadFromDataUri(event.params.newURI)
     let decoded = base64DecodeToBytes(b64)
 
-    let registration = new AgentRegistrationFile(fileId)
-    registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
-    registration.agentId = agentEntityId
-    registration.createdAt = event.block.timestamp
-    registration.supportedTrusts = []
-    registration.mcpTools = []
-    registration.mcpPrompts = []
-    registration.mcpResources = []
-    registration.a2aSkills = []
-    registration.oasfSkills = []
-    registration.oasfDomains = []
+    let registration = AgentRegistrationFile.load(fileId)
+    if (registration == null) {
+      registration = new AgentRegistrationFile(fileId)
+      registration.cid = `datauri:${txHash}:${event.logIndex.toString()}`
+      registration.agentId = agentEntityId
+      registration.createdAt = event.block.timestamp
+      registration.supportedTrusts = []
+      registration.mcpTools = []
+      registration.mcpPrompts = []
+      registration.mcpResources = []
+      registration.a2aSkills = []
+      registration.oasfSkills = []
+      registration.oasfDomains = []
+    }
 
     populateRegistrationFromJsonBytes(registration, decoded)
     registration.save()

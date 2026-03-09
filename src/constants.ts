@@ -25,7 +25,8 @@ export namespace Network {
   export const MONAD_TESTNET = "monad-testnet";
   export const HEDERA_TESTNET = "hedera-testnet";
   export const HYPEREVM_TESTNET = "hyperevm-testnet";
-  export const SKALE_SEPOLIA = "skale-base-sepolia-testnet";
+  export const SKALE_BASE_MAINNET = "skale-base-mainnet";
+  export const SKALE_BASE_SEPOLIA = "skale-base-sepolia-testnet";
 }
 
 /**
@@ -47,7 +48,8 @@ export function getChainIdFromNetwork(network: string): BigInt {
   if (network == Network.MONAD_TESTNET) return BigInt.fromI32(10143);
   if (network == Network.HEDERA_TESTNET) return BigInt.fromI32(296);
   if (network == Network.HYPEREVM_TESTNET) return BigInt.fromI32(998);
-  if (network == Network.SKALE_SEPOLIA) return BigInt.fromString("1351057110");
+  if (network == Network.SKALE_BASE_SEPOLIA) return BigInt.fromString("1351057110");
+  if (network == Network.SKALE_BASE_MAINNET) return BigInt.fromString("1187947933");
 
   // Unknown network - return 0
   return BigInt.fromI32(0);
@@ -71,7 +73,8 @@ export function getNetworkDisplayName(network: string): string {
   if (network == Network.MONAD_TESTNET) return "Monad Testnet";
   if (network == Network.HEDERA_TESTNET) return "Hedera Testnet";
   if (network == Network.HYPEREVM_TESTNET) return "HyperEVM Testnet";
-  if (network == Network.SKALE_SEPOLIA) return "SKALE Base Sepolia Testnet";
+  if (network == Network.SKALE_BASE_SEPOLIA) return "SKALE Base Sepolia Testnet";
+  if (network == Network.SKALE_BASE_MAINNET) return "SKALE Base Mainnet";
 
   return `Unknown Network (${network})`;
 }
