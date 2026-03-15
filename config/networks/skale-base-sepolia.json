@@ -1,23 +1,22 @@
 {
-  "network": "bsc-testnet",
-  "chainId": "97",
-  "displayName": "BSC Testnet",
+  "network": "skale-base-sepolia",
+  "chainId": "1351057110",
+  "displayName": "SKALE Base Sepolia",
   "identityRegistry": {
     "address": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
-    "startBlock": 78270834
+    "startBlock": 923614
   },
   "reputationRegistry": {
     "address": "0x8004B663056A597Dffe9eCcC1965A193B7388713",
-    "startBlock": 77785485
+    "startBlock": 923615
   },
   "validationRegistry": {},
   "graphNode": {
-    "supported": true,
-    "network": "chapel"
+    "supported": false,
+    "network": "skale-base-sepolia-testnet"
   },
   "goldsky": {
     "supported": true,
-    "network": "chapel"
+    "network": "skale-base-sepolia-testnet"
   }
 }
-
