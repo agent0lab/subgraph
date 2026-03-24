@@ -26,6 +26,7 @@ export namespace Network {
   export const HEDERA_TESTNET = "hedera-testnet";
   export const HYPEREVM_TESTNET = "hyperevm-testnet";
   export const SKALE_BASE_MAINNET = "skale-base-mainnet";
+  export const SKALE_BASE = "skale-base";
   export const SKALE_BASE_SEPOLIA = "skale-base-sepolia-testnet";
 }
 
