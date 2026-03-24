@@ -26,6 +26,7 @@ export namespace Network {
   export const HEDERA_TESTNET = "hedera-testnet";
   export const HYPEREVM_TESTNET = "hyperevm-testnet";
   export const SKALE_BASE_MAINNET = "skale-base-mainnet";
+  export const SKALE_BASE = "skale-base";
   export const SKALE_BASE_SEPOLIA = "skale-base-sepolia-testnet";
 }
 
@@ -49,7 +50,7 @@ export function getChainIdFromNetwork(network: string): BigInt {
   if (network == Network.HEDERA_TESTNET) return BigInt.fromI32(296);
   if (network == Network.HYPEREVM_TESTNET) return BigInt.fromI32(998);
   if (network == Network.SKALE_BASE_SEPOLIA) return BigInt.fromString("1351057110");
-  if (network == Network.SKALE_BASE_MAINNET) return BigInt.fromString("1187947933");
+  if (network == Network.SKALE_BASE_MAINNET || network == Network.SKALE_BASE) return BigInt.fromString("1187947933");
 
   // Unknown network - return 0
   return BigInt.fromI32(0);
@@ -74,7 +75,7 @@ export function getNetworkDisplayName(network: string): string {
   if (network == Network.HEDERA_TESTNET) return "Hedera Testnet";
   if (network == Network.HYPEREVM_TESTNET) return "HyperEVM Testnet";
   if (network == Network.SKALE_BASE_SEPOLIA) return "SKALE Base Sepolia Testnet";
-  if (network == Network.SKALE_BASE_MAINNET) return "SKALE Base Mainnet";
+  if (network == Network.SKALE_BASE_MAINNET || network == Network.SKALE_BASE) return "SKALE Base Mainnet";
 
   return `Unknown Network (${network})`;
 }
