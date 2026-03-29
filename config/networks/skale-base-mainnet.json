@@ -1,24 +1,22 @@
 {
-  "network": "polygon-mainnet",
-  "chainId": "137",
-  "displayName": "Polygon Mainnet",
+  "network": "skale-base-mainnet",
+  "chainId": "1187947933",
+  "displayName": "SKALE Base Mainnet",
   "identityRegistry": {
     "address": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
-    "startBlock": 82458528
+    "startBlock": 689195
   },
   "reputationRegistry": {
     "address": "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63",
-    "startBlock": 82458532
+    "startBlock": 689195
   },
   "validationRegistry": {},
   "graphNode": {
-    "supported": true,
-    "network": "matic"
+    "supported": false,
+    "network": "skale-base"
   },
   "goldsky": {
     "supported": true,
-    "network": "matic"
+    "netowrk": "skale-base"
   }
 }
-
-

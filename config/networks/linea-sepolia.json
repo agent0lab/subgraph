@@ -6,6 +6,11 @@
   "reputationRegistry": {},
   "validationRegistry": {},
   "graphNode": {
+    "supported": true,
+    "network": "linea-sepolia"
+  },
+  "goldsky": {
+    "supported": true,
     "network": "linea-sepolia"
   }
 }

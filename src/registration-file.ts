@@ -8,25 +8,26 @@ export function parseRegistrationFile(content: Bytes): void {
   let cid = dataSource.stringParam()
   let txHash = context.getString('txHash')
   
-  // Create composite ID: transactionHash:cid
   let fileId = `${txHash}:${cid}`
   
   log.info("Parsing registration file for agent: {}, CID: {}, fileId: {}", [agentId, cid, fileId])
   
-  // Create registration file with composite ID
-  let metadata = new AgentRegistrationFile(fileId)
-  metadata.cid = cid
-  metadata.agentId = agentId
-  metadata.createdAt = context.getBigInt('timestamp')
-  metadata.supportedTrusts = []
-  metadata.mcpTools = []
-  metadata.mcpPrompts = []
-  metadata.mcpResources = []
-  metadata.a2aSkills = []
-  metadata.oasfSkills = []
-  metadata.oasfDomains = []
-  metadata.hasOASF = false
-  // New centralized parser (handles x402Support, new endpoints, endpointsRawJson)
+  let metadata = AgentRegistrationFile.load(fileId)
+  if (metadata == null) {
+    metadata = new AgentRegistrationFile(fileId)
+    metadata.cid = cid
+    metadata.agentId = agentId
+    metadata.createdAt = context.getBigInt('timestamp')
+    metadata.supportedTrusts = []
+    metadata.mcpTools = []
+    metadata.mcpPrompts = []
+    metadata.mcpResources = []
+    metadata.a2aSkills = []
+    metadata.oasfSkills = []
+    metadata.oasfDomains = []
+    metadata.hasOASF = false
+  }
+
   populateRegistrationFromJsonBytes(metadata, content)
 
   // Derived field for exact filtering: OASF skills OR domains present.

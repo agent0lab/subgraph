@@ -6,6 +6,11 @@
   "reputationRegistry": {},
   "validationRegistry": {},
   "graphNode": {
+    "supported": true,
+    "network": "hyperevm-testnet"
+  },
+  "goldsky": {
+    "supported": true,
     "network": "hyperevm-testnet"
   }
 }

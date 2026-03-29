@@ -69,6 +69,15 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
       zero
     )
   }
+  // Base Mainnet (8453)
+  else if (chainId.equals(BigInt.fromI32(8453))) {
+    return new ContractAddresses(
+      Bytes.fromHexString("0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"),
+      Bytes.fromHexString("0x8004BAa17C55a88189AE136b182e5fdA19dE9b63"),
+      // Validation registry not configured / indexing paused
+      Bytes.fromHexString("0x0000000000000000000000000000000000000000")
+    )
+  }
   // Ethereum Sepolia (11155111)
   else if (chainId.equals(BigInt.fromI32(11155111))) {
     return new ContractAddresses(
@@ -136,12 +145,19 @@ export function getContractAddresses(chainId: BigInt): ContractAddresses {
   // SKALE Base Sepolia Testnet (1351057110)
   else if (chainId.equals(BigInt.fromString("1351057110"))) {
     return new ContractAddresses(
-      zero,
-      zero,
+      Bytes.fromHexString("0x8004A818BFB912233c491871b3d84c89A494BD9e"),
+      Bytes.fromHexString("0x8004B663056A597Dffe9eCcC1965A193B7388713"),
       zero
     )
   }
-
+  // SKALE Base Mainnet (1187947933)
+  else if (chainId.equals(BigInt.fromString("1187947933"))) {
+    return new ContractAddresses(
+      Bytes.fromHexString("0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"),
+      Bytes.fromHexString("0x8004BAa17C55a88189AE136b182e5fdA19dE9b63"),
+      zero
+    )
+  }
   // Unsupported chain - return zero addresses
   return new ContractAddresses(
     zero,
@@ -160,6 +176,7 @@ export function getChainName(chainId: BigInt): string {
   if (chainId.equals(BigInt.fromI32(56))) return "BSC Mainnet"
   if (chainId.equals(BigInt.fromI32(143))) return "Monad"
   if (chainId.equals(BigInt.fromI32(137))) return "Polygon Mainnet"
+  if (chainId.equals(BigInt.fromI32(8453))) return "Base Mainnet"
   if (chainId.equals(BigInt.fromI32(11155111))) return "Ethereum Sepolia"
   if (chainId.equals(BigInt.fromI32(97))) return "BSC Testnet"
   if (chainId.equals(BigInt.fromI32(10143))) return "Monad Testnet"
@@ -202,6 +219,7 @@ export function getSupportedChains(): BigInt[] {
     BigInt.fromI32(56),            // BSC Mainnet
     BigInt.fromI32(143),           // Monad
     BigInt.fromI32(137),           // Polygon Mainnet
+    BigInt.fromI32(8453),          // Base Mainnet
     BigInt.fromI32(11155111),      // Ethereum Sepolia
     BigInt.fromI32(97),            // BSC Testnet
     BigInt.fromI32(10143),         // Monad Testnet
