@@ -32,6 +32,7 @@ yarn-error.log*
 # Test coverage
 coverage/
 .nyc_output/
+tests/.bin/
 
 # Temporary files
 *.tmp

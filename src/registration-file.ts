@@ -6,10 +6,8 @@ export function parseRegistrationFile(content: Bytes): void {
   let context = dataSource.context()
   let agentId = context.getString('agentId')
   let cid = dataSource.stringParam()
-  let txHash = context.getString('txHash')
-  
-  // Create composite ID: transactionHash:cid
-  let fileId = `${txHash}:${cid}`
+  // Use the exact event-scoped ID already linked by the chain handler.
+  let fileId = context.getString('fileId')
   
   log.info("Parsing registration file for agent: {}, CID: {}, fileId: {}", [agentId, cid, fileId])
   

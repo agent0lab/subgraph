@@ -70,12 +70,14 @@ export function handleAgentRegistered(event: Registered): void {
     logIpfsExtraction("agent registration", event.params.agentURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
-      let fileId = `${txHash}:${ipfsHash}`
+      // A batch transaction can reuse a CID across multiple registration events.
+      let fileId = `${txHash}:${event.logIndex.toString()}:${ipfsHash}`
       
       let context = new DataSourceContext()
       context.setString('agentId', agentEntityId)
       context.setString('cid', ipfsHash)
       context.setString('txHash', txHash)
+      context.setString('fileId', fileId)
       context.setBigInt('timestamp', event.block.timestamp)
       RegistrationFile.createWithContext(ipfsHash, context)
       
@@ -189,12 +191,13 @@ export function handleUriUpdated(event: URIUpdated): void {
     logIpfsExtraction("agent URI update", event.params.newURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
-      let fileId = `${txHash}:${ipfsHash}`
+      let fileId = `${txHash}:${event.logIndex.toString()}:${ipfsHash}`
       
       let context = new DataSourceContext()
       context.setString('agentId', agentEntityId)
       context.setString('cid', ipfsHash)
       context.setString('txHash', txHash)
+      context.setString('fileId', fileId)
       context.setBigInt('timestamp', event.block.timestamp)
       RegistrationFile.createWithContext(ipfsHash, context)
       
