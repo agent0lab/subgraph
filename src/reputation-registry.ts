@@ -104,12 +104,13 @@ export function handleNewFeedback(event: NewFeedback): void {
     logIpfsExtraction("feedback", event.params.feedbackURI, ipfsHash)
     if (ipfsHash.length > 0) {
       let txHash = event.transaction.hash.toHexString()
-      let fileId = `${txHash}:${ipfsHash}`
+      let fileId = `${txHash}:${event.logIndex.toString()}:${ipfsHash}`
       
       let context = new DataSourceContext()
       context.setString('feedbackId', feedbackId)
       context.setString('cid', ipfsHash)
       context.setString('txHash', txHash)
+      context.setString('fileId', fileId)
       context.setBigInt('timestamp', event.block.timestamp)
       context.setString('tag1OnChain', feedback.tag1 ? feedback.tag1! : "")
       context.setString('tag2OnChain', feedback.tag2 ? feedback.tag2! : "")

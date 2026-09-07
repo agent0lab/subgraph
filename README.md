@@ -273,7 +273,7 @@ enum ValidationStatus {
 #### AgentRegistrationFile
 ```graphql
 type AgentRegistrationFile @entity(immutable: true) {
-  id: ID!                    # Format: "transactionHash:cid"
+  id: ID!                    # IPFS: "transactionHash:logIndex:cid"; data URI: "transactionHash:datauri:logIndex"
   cid: String!               # IPFS CID (for querying by content)
   agentId: String!          # "chainId:agentId"
   name: String              # Agent display name
@@ -301,7 +301,7 @@ type AgentRegistrationFile @entity(immutable: true) {
 #### FeedbackFile
 ```graphql
 type FeedbackFile @entity(immutable: true) {
-  id: ID!                    # Format: "transactionHash:cid"
+  id: ID!                    # Format: "transactionHash:logIndex:cid"
   cid: String!               # IPFS CID (for querying by content)
   feedbackId: String!       # "chainId:agentId:clientAddress:index"
   text: String              # Detailed feedback text
@@ -604,6 +604,25 @@ curl -X POST \
   -d '{"query": "{ agents(first: 5) { id registrationFile { name description } } }"}' \
   http://localhost:8000/subgraphs/name/agent0-sdk/agent0-sdk
 ```
+
+### Metadata ID Regression Tests
+
+After code generation, run on a Matchstick-supported host (Linux/macOS, or Linux under WSL):
+
+```bash
+npm test -- file-id-regression -r -v 0.6.0
+```
+
+The tests exercise the real identity, feedback and file handlers with shared CIDs
+across events. Matchstick 0.6 cannot serialize the production timeseries value
+types, so these focused tests use an unsupported mock network (chain ID 0) to
+skip the analytics branch without changing production code. File contexts are
+supplied explicitly because Matchstick does not schedule IPFS file templates.
+These tests do not replace Graph Node historical replay or aggregation checks.
+
+IPFS file IDs include the event log index. Both the chain entity link and the
+file handler use the same ID passed in the data source context. Deploy this
+change as a new version and reindex; existing indexed IDs are not migrated in place.
 
 ### Testing Queries
 

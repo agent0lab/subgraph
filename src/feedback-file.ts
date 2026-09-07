@@ -24,12 +24,9 @@ export function parseFeedbackFile(content: Bytes): void {
   let context = dataSource.context()
   let feedbackId = context.getString('feedbackId')
   let cid = dataSource.stringParam()
-  let txHash = context.getString('txHash')
+  let fileId = context.getString('fileId')
   let tag1OnChain = context.getString('tag1OnChain')
   let tag2OnChain = context.getString('tag2OnChain')
-  
-  // Create composite ID: transactionHash:cid
-  let fileId = `${txHash}:${cid}`
   
   log.info("Parsing feedback file for feedback: {}, CID: {}, fileId: {}", [feedbackId, cid, fileId])
   
